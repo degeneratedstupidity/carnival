@@ -88,8 +88,17 @@ export async function GET(request: Request) {
   }
 
   if (escalationsToInsert.length > 0) {
-    const { error } = await supabase.from('escalations').insert(escalationsToInsert)
-    if (!error) created = escalationsToInsert.length
+    // Avoid duplicate pending escalations for the same rule + user
+    const { data: existing } = await supabase
+      .from('escalations')
+      .select('rule_id, target_user_id')
+      .eq('status', 'pending')
+    const existingSet = new Set((existing ?? []).map(e => `${e.rule_id}:${e.target_user_id}`))
+    const newOnes = escalationsToInsert.filter(e => !existingSet.has(`${e.rule_id}:${e.target_user_id}`))
+    if (newOnes.length > 0) {
+      const { error } = await supabase.from('escalations').insert(newOnes)
+      if (!error) created = newOnes.length
+    }
   }
 
   return NextResponse.json({ ok: true, created })

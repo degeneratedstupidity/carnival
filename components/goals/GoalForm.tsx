@@ -30,6 +30,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 interface GoalFormProps {
+  userId: string
   thrustAreas: ThrustArea[]
   templates: GoalTemplate[]
   remainingWeightage: number
@@ -37,7 +38,7 @@ interface GoalFormProps {
   onCancel: () => void
 }
 
-export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit, onCancel }: GoalFormProps) {
+export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, onSubmit, onCancel }: GoalFormProps) {
   const [uomType, setUomType] = useState<UoMType>('min_numeric')
   const [aiSuggestion, setAiSuggestion] = useState<string[]>([])
   const [loadingAi, setLoadingAi] = useState(false)
@@ -71,7 +72,7 @@ export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit,
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, uomType, thrustArea: thrustAreas.find(t => t.id === selectedThrustId)?.name }),
+        body: JSON.stringify({ userId, title, description, uomType, thrustArea: thrustAreas.find(t => t.id === selectedThrustId)?.name }),
       })
       const data = await res.json()
       if (data.suggestions) setAiSuggestion(data.suggestions)

@@ -18,7 +18,7 @@ export function computeScore(
     case 'max_numeric':
     case 'max_percent':
       if (!target) return 0
-      if (actual === 0) return 100
+      if (actual === 0) return 150
       return Math.min((target / actual) * 100, 150)
 
     case 'timeline': {

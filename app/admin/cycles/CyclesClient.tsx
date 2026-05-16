@@ -73,7 +73,7 @@ export function CyclesClient({ initialCycles }: CyclesClientProps) {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Select value={cycle.phase} onValueChange={(v) => updatePhase(cycle, v as CyclePhase)}>
+              <Select value={cycle.phase} onValueChange={(v) => { if (v) updatePhase(cycle, v as CyclePhase) }}>
                 <SelectTrigger className="h-8 w-36 text-xs">
                   <SelectValue />
                 </SelectTrigger>

@@ -171,7 +171,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                         <label className="text-xs font-medium text-slate-600">Status</label>
                         <Select
                           value={ci.progress_status ?? 'not_started'}
-                          onValueChange={(v) => updateLocal(goal.id, { progress_status: v as ProgressStatus })}
+                          onValueChange={(v) => { if (v) updateLocal(goal.id, { progress_status: v as ProgressStatus }) }}
                         >
                           <SelectTrigger className="h-8 text-sm">
                             <SelectValue />

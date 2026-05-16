@@ -239,6 +239,7 @@ export function GoalsClient({
           </DrawerHeader>
           <div className="overflow-y-auto px-4 pb-8">
             <GoalForm
+              userId={profile.id}
               thrustAreas={thrustAreas}
               templates={templates}
               remainingWeightage={remaining}
