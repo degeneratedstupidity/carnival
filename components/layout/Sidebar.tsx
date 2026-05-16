@@ -11,7 +11,7 @@ const employeeNav = [
 ]
 
 const managerNav = [
-  { label: 'Team', href: '/manager/approvals' },
+  { label: 'Approvals', href: '/manager/approvals' },
   { label: 'Check-ins', href: '/manager/checkin' },
 ]
 

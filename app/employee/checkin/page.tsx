@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { CheckinClient } from './CheckinClient'
 
@@ -31,9 +32,12 @@ export default async function CheckinPage() {
 
   if (!sheet || sheet.status !== 'approved') {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-2">
+      <div className="flex h-screen flex-col items-center justify-center gap-3">
         <p className="text-sm font-medium text-slate-700">Goals not yet approved</p>
         <p className="text-xs text-slate-500">Check-in is available after your manager approves your goals.</p>
+        <Link href="/employee/goals" className="mt-1 text-xs text-orange-600 hover:underline">
+          Back to my goals
+        </Link>
       </div>
     )
   }

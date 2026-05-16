@@ -93,7 +93,7 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
       {/* Thrust Area + Templates */}
       <div className="space-y-1.5">
         <Label>Thrust Area</Label>
-        <Select onValueChange={(v: string | null) => { if (v) { setValue('thrust_area_id', v); setSelectedThrustId(v) } }}>
+        <Select value={selectedThrustId} onValueChange={(v: string | null) => { if (v) { setValue('thrust_area_id', v); setSelectedThrustId(v) } }}>
           <SelectTrigger>
             <SelectValue placeholder="Select thrust area" />
           </SelectTrigger>
