@@ -22,11 +22,13 @@ export default async function ManagerCheckinPage() {
   const approvedSheets = teamIds.length > 0 && activeCycle
     ? (await supabase
         .from('goal_sheets')
-        .select('*, employee:profiles(*)')
+        .select('*')
         .in('employee_id', teamIds)
         .eq('cycle_id', activeCycle.id)
         .eq('status', 'approved')).data ?? []
     : []
+
+  const teamMap = new Map((team ?? []).map(t => [t.id, t]))
 
   const sheetIds = approvedSheets.map(s => s.id)
 
@@ -68,6 +70,7 @@ export default async function ManagerCheckinPage() {
         ) : (
           <div className="space-y-3">
             {approvedSheets.map(sheet => {
+              const emp = teamMap.get(sheet.employee_id)
               const sheetGoals = goalsBySheet.get(sheet.id) ?? []
               const score = avgScore(sheetGoals)
               const checkedInCount = sheetGoals.filter(g =>
@@ -80,8 +83,8 @@ export default async function ManagerCheckinPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-slate-900">{sheet.employee?.name}</p>
-                          <p className="text-xs text-slate-500">{sheet.employee?.department}</p>
+                          <p className="font-medium text-slate-900">{emp?.name}</p>
+                          <p className="text-xs text-slate-500">{emp?.department}</p>
                           <div className="mt-2 flex items-center gap-2">
                             <Progress value={score} className="h-1.5 w-32" />
                             <span className="text-xs text-slate-500">{score}% avg score</span>

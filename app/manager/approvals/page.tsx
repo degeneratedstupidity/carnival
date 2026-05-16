@@ -32,7 +32,7 @@ export default async function ApprovalsPage() {
   const sheets = teamIds.length > 0 && activeCycle
     ? (await supabase
         .from('goal_sheets')
-        .select('*, employee:profiles(*)')
+        .select('*')
         .in('employee_id', teamIds)
         .eq('cycle_id', activeCycle.id)).data ?? []
     : []
