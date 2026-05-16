@@ -15,7 +15,9 @@ export default async function ManagerCheckinDetailPage({ params }: { params: Pro
   if (!manager || manager.role !== 'manager') redirect('/')
 
   const { data: activeCycle } = await supabase.from('goal_cycles').select('*').eq('is_active', true).single()
-  const quarter = activeCycle?.phase ?? 'q1'
+  const validQuarters = ['q1', 'q2', 'q3', 'q4']
+  const activePhase = activeCycle?.phase ?? 'q1'
+  const quarter = validQuarters.includes(activePhase) ? activePhase : 'q1'
 
   const { data: sheet } = await supabase
     .from('goal_sheets')

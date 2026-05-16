@@ -129,10 +129,12 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                     <p className="mt-0.5 text-xs text-slate-500">
                       Target:{' '}
                       {goal.uom_type === 'timeline'
-                        ? goal.target_date
+                        ? (goal.target_date ?? 'Not set')
                         : goal.uom_type === 'zero'
                         ? '0 (zero incidents)'
-                        : `${goal.target_value}${goal.uom_type.includes('percent') ? '%' : ''}`}
+                        : goal.target_value != null
+                        ? `${goal.target_value}${goal.uom_type.includes('percent') ? '%' : ''}`
+                        : 'Not set'}
                     </p>
 
                     <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -143,7 +145,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                             type="number"
                             value={ci.actual_value ?? ''}
                             onChange={(e) => updateLocal(goal.id, { actual_value: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder={`e.g. ${goal.target_value}`}
+                            placeholder={goal.target_value != null ? `e.g. ${goal.target_value}` : 'Enter actual'}
                             className="h-8 text-sm"
                           />
                         </div>

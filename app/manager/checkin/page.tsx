@@ -17,7 +17,9 @@ export default async function ManagerCheckinPage() {
   const { data: activeCycle } = await supabase.from('goal_cycles').select('*').eq('is_active', true).single()
   const { data: team } = await supabase.from('profiles').select('*').eq('manager_id', user.id).order('name')
   const teamIds = (team ?? []).map(t => t.id)
-  const quarter = activeCycle?.phase ?? 'q1'
+  const validQuarters = ['q1', 'q2', 'q3', 'q4']
+  const activePhase = activeCycle?.phase ?? 'q1'
+  const quarter = validQuarters.includes(activePhase) ? activePhase : 'q1'
 
   const approvedSheets = teamIds.length > 0 && activeCycle
     ? (await supabase
