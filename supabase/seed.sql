@@ -1,10 +1,10 @@
 -- ============================================================
--- AtomFlow Seed Data
+-- Carnival Seed Data
 -- Run AFTER creating auth users via Supabase Dashboard or CLI
 -- Demo credentials:
---   employee@atomflow.demo / Demo@2026!
---   manager@atomflow.demo  / Demo@2026!
---   admin@atomflow.demo    / Demo@2026!
+--   employee@carnival.demo / Demo@2026!
+--   manager@carnival.demo  / Demo@2026!
+--   admin@carnival.demo    / Demo@2026!
 -- ============================================================
 
 -- This file inserts into public.profiles.
@@ -62,16 +62,16 @@ on conflict do nothing;
 -- NOTE: To complete seed setup:
 -- 1. Go to Supabase Dashboard > Authentication > Users
 -- 2. Create 3 users with these emails and password Demo@2026!:
---    - admin@atomflow.demo
---    - manager@atomflow.demo
---    - employee@atomflow.demo
+--    - admin@carnival.demo
+--    - manager@carnival.demo
+--    - employee@carnival.demo
 -- 3. Copy the UUIDs from the auth.users table
 -- 4. Run the profile inserts below in SQL editor with actual UUIDs
 -- ============================================================
 
 -- Example profile inserts (replace UUIDs with actual auth.users IDs):
 -- insert into public.profiles (id, name, email, role, department) values
---   ('<admin-uuid>', 'Carol Singh', 'admin@atomflow.demo', 'admin', 'HR'),
---   ('<manager-uuid>', 'Bob Mehta', 'manager@atomflow.demo', 'manager', 'Sales'),
---   ('<employee-uuid>', 'Alice Sharma', 'employee@atomflow.demo', 'employee', 'Sales');
--- update public.profiles set manager_id = '<manager-uuid>' where email = 'employee@atomflow.demo';
+--   ('<admin-uuid>', 'Carol Singh', 'admin@carnival.demo', 'admin', 'HR'),
+--   ('<manager-uuid>', 'Bob Mehta', 'manager@carnival.demo', 'manager', 'Sales'),
+--   ('<employee-uuid>', 'Alice Sharma', 'employee@carnival.demo', 'employee', 'Sales');
+-- update public.profiles set manager_id = '<manager-uuid>' where email = 'employee@carnival.demo';

@@ -34,5 +34,5 @@ export function exportAchievementReport(rows: ReportRow[], filename?: string) {
   const ws = XLSX.utils.json_to_sheet(data)
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Achievement Report')
-  XLSX.writeFile(wb, filename ?? `atomflow_report_${Date.now()}.xlsx`)
+  XLSX.writeFile(wb, filename ?? `carnival_report_${Date.now()}.xlsx`)
 }

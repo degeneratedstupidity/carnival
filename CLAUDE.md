@@ -25,7 +25,7 @@ This project uses **Next.js 16.2.6** — read `AGENTS.md` before touching routin
 
 **Role routing**: Employee → `/employee/*`, Manager → `/manager/*`, Admin → `/admin/*`. Protected by `proxy.ts` which checks Supabase session.
 
-**Demo Mode**: `app/page.tsx` login page has one-click demo buttons. Signs in via `supabase.auth.signInWithPassword` using `[role]@atomflow.demo / Demo@2026!` accounts. `DemoSwitcher` component (bottom-right pill) allows role switching without logout.
+**Demo Mode**: `app/page.tsx` login page has one-click demo buttons. Signs in via `supabase.auth.signInWithPassword` using `[role]@carnival.demo / Demo@2026!` accounts. `DemoSwitcher` component (bottom-right pill) allows role switching without logout.
 
 **Data pattern**: Server components fetch data with `createClient()` from `lib/supabase/server.ts`. Client mutations use `createClient()` from `lib/supabase/client.ts`. Never use nested Supabase joins in server components — they return arrays, not single objects. Pre-process relational data with `Map` lookups instead.
 
