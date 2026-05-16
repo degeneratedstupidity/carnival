@@ -16,11 +16,12 @@ import { Pencil, Check, X } from 'lucide-react'
 
 interface ApprovalClientProps {
   manager: Profile
-  sheet: GoalSheet & { employee: Profile }
+  sheet: GoalSheet
+  employee: Profile | null
   initialGoals: Goal[]
 }
 
-export function ApprovalClient({ manager, sheet, initialGoals }: ApprovalClientProps) {
+export function ApprovalClient({ manager, sheet, employee, initialGoals }: ApprovalClientProps) {
   const router = useRouter()
   const supabase = createClient()
   const [goals, setGoals] = useState<Goal[]>(initialGoals)
@@ -114,8 +115,8 @@ export function ApprovalClient({ manager, sheet, initialGoals }: ApprovalClientP
       <div className="mx-auto max-w-4xl p-6">
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Review goals — {sheet.employee?.name}</h1>
-            <p className="text-sm text-slate-500">{sheet.employee?.department ?? sheet.employee?.email}</p>
+            <h1 className="text-xl font-bold text-slate-900">Review goals — {employee?.name}</h1>
+            <p className="text-sm text-slate-500">{employee?.department ?? employee?.email}</p>
             {sheet.submitted_at && (
               <p className="text-xs text-slate-400">
                 Submitted {new Date(sheet.submitted_at).toLocaleDateString('en-IN')}

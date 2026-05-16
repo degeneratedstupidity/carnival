@@ -13,11 +13,17 @@ export default async function ApprovalPage({ params }: { params: Promise<{ sheet
 
   const { data: sheet } = await supabase
     .from('goal_sheets')
-    .select('*, employee:profiles(*)')
+    .select('*')
     .eq('id', sheetId)
     .single()
 
   if (!sheet) redirect('/manager/approvals')
+
+  const { data: employee } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', sheet.employee_id)
+    .single()
 
   const { data: goals } = await supabase
     .from('goals')
@@ -29,6 +35,7 @@ export default async function ApprovalPage({ params }: { params: Promise<{ sheet
     <ApprovalClient
       manager={manager}
       sheet={sheet}
+      employee={employee ?? null}
       initialGoals={goals ?? []}
     />
   )
