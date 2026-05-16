@@ -7,7 +7,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { WeightageFuelGauge } from '@/components/goals/WeightageFuelGauge'
 import { GoalCard } from '@/components/goals/GoalCard'
 import { GoalForm } from '@/components/goals/GoalForm'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
@@ -102,6 +102,20 @@ export function GoalsClient({
     if (error) { toast.error('Could not remove goal'); return }
     setGoals(prev => prev.filter(g => g.id !== id))
     toast.success('Goal removed')
+  }
+
+  async function handleWithdraw() {
+    if (!sheet) return
+    setSubmitting(true)
+    const { error } = await supabase
+      .from('goal_sheets')
+      .update({ status: 'draft', submitted_at: null })
+      .eq('id', sheet.id)
+    if (error) { toast.error('Could not withdraw submission'); setSubmitting(false); return }
+    setSheet(prev => prev ? { ...prev, status: 'draft' } : prev)
+    toast.success('Submission withdrawn. You can now edit your goals.')
+    setSubmitting(false)
+    router.refresh()
   }
 
   async function handleSubmit() {
@@ -230,25 +244,38 @@ export function GoalsClient({
             )}
           </div>
         )}
+        {isSubmitted && !isLocked && (
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              onClick={handleWithdraw}
+              disabled={submitting}
+              className="w-full border-slate-300 text-slate-600 hover:bg-slate-50"
+            >
+              {submitting ? 'Withdrawing...' : 'Withdraw submission'}
+            </Button>
+            <p className="mt-1 text-center text-xs text-slate-400">
+              This returns your goals to draft so you can edit or delete them.
+            </p>
+          </div>
+        )}
       </div>
 
-      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader>
-            <DrawerTitle>Add a new goal</DrawerTitle>
-          </DrawerHeader>
-          <div className="overflow-y-auto px-4 pb-8">
-            <GoalForm
-              userId={profile.id}
-              thrustAreas={thrustAreas}
-              templates={templates}
-              remainingWeightage={remaining}
-              onSubmit={handleAddGoal}
-              onCancel={() => setDrawerOpen(false)}
-            />
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add a new goal</DialogTitle>
+          </DialogHeader>
+          <GoalForm
+            userId={profile.id}
+            thrustAreas={thrustAreas}
+            templates={templates}
+            remainingWeightage={remaining}
+            onSubmit={handleAddGoal}
+            onCancel={() => setDrawerOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </AppShell>
   )
 }

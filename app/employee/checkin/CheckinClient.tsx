@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { AppShell } from '@/components/layout/AppShell'
 import { ScoreRing } from '@/components/goals/ScoreRing'
@@ -11,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { computeScore } from '@/lib/scoring'
 import { Goal, CheckIn, GoalCycle, Profile, ProgressStatus, UoMType } from '@/types'
+import { ChevronLeft } from 'lucide-react'
 
 interface CheckinClientProps {
   profile: Profile
@@ -91,6 +93,9 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
     <AppShell role="employee" name={profile.name} department={profile.department}>
       <div className="mx-auto max-w-4xl p-6">
         <div className="mb-6">
+          <Link href="/employee/goals" className="mb-3 inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800">
+            <ChevronLeft className="h-3.5 w-3.5" /> Back to my goals
+          </Link>
           <h1 className="text-xl font-bold text-slate-900">{quarterLabel} Check-in</h1>
           <p className="text-sm text-slate-500">{activeCycle.name} — Log your actual achievement</p>
         </div>

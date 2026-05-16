@@ -72,7 +72,7 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, title, description, uomType, thrustArea: thrustAreas.find(t => t.id === selectedThrustId)?.name }),
+        body: JSON.stringify({ userId, goalTitle: title, description, uomType, thrustArea: thrustAreas.find(t => t.id === selectedThrustId)?.name }),
       })
       const data = await res.json()
       if (data.suggestions) setAiSuggestion(data.suggestions)
