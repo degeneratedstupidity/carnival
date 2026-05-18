@@ -328,7 +328,6 @@ export function GoalsClient({
             <DialogTitle>Add a new goal</DialogTitle>
           </DialogHeader>
           <GoalForm
-            userId={profile.id}
             thrustAreas={thrustAreas}
             templates={templates}
             remainingWeightage={remaining}

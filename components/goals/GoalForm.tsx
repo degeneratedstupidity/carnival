@@ -30,7 +30,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 interface GoalFormProps {
-  userId: string
   thrustAreas: ThrustArea[]
   templates: GoalTemplate[]
   remainingWeightage: number
@@ -38,23 +37,14 @@ interface GoalFormProps {
   onCancel: () => void
 }
 
-export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, onSubmit, onCancel }: GoalFormProps) {
+export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit, onCancel }: GoalFormProps) {
   const [uomType, setUomType] = useState<UoMType>('min_numeric')
-  const [aiSuggestion, setAiSuggestion] = useState<string[]>([])
-  const [aiIsFallback, setAiIsFallback] = useState(false)
-  const [loadingAi, setLoadingAi] = useState(false)
-  const [showAi, setShowAi] = useState(false)
   const [selectedThrustId, setSelectedThrustId] = useState('')
 
-  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { uom_type: 'min_numeric', weightage: Math.min(20, remainingWeightage) },
   })
-
-  const title = watch('title')
-  const description = watch('description')
-  const targetValue = watch('target_value')
-  const targetDate = watch('target_date')
 
   function applyTemplate(template: GoalTemplate) {
     setValue('title', template.title)
@@ -65,30 +55,6 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
     setUomType(template.uom_type)
     setSelectedThrustId(template.thrust_area_id)
     toast.success('Template applied')
-  }
-
-  async function fetchAiSuggestions() {
-    if (!title) { toast.error('Add a goal title first'); return }
-    setLoadingAi(true)
-    setShowAi(true)
-    try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, goalTitle: title, description, uomType, targetValue, targetDate, thrustArea: thrustAreas.find(t => t.id === selectedThrustId)?.name }),
-      })
-      const data = await res.json()
-      if (data.suggestions) {
-        setAiSuggestion(data.suggestions)
-        setAiIsFallback(!!data.fallback)
-      } else {
-        toast.error('Could not get suggestions right now')
-      }
-    } catch {
-      toast.error('Could not get suggestions right now')
-    } finally {
-      setLoadingAi(false)
-    }
   }
 
   const filteredTemplates = selectedThrustId
@@ -208,39 +174,6 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
           <span className="text-xs text-slate-500">{remainingWeightage}% remaining to assign</span>
         </div>
         {errors.weightage && <p className="text-xs text-red-500">{errors.weightage.message}</p>}
-      </div>
-
-      {/* AI Suggestions */}
-      <div className="rounded-lg border border-slate-200">
-        <button
-          type="button"
-          onClick={() => setShowAi(!showAi)}
-          className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium text-slate-700"
-        >
-          Get AI suggestions
-          <span className="text-xs text-slate-400">{showAi ? 'Hide' : 'Show'}</span>
-        </button>
-        {showAi && (
-          <div className="border-t border-slate-100 px-3 pb-3 pt-2">
-            <Button type="button" variant="outline" size="sm" onClick={fetchAiSuggestions} disabled={loadingAi}>
-              {loadingAi ? 'Analyzing...' : 'Analyze this goal'}
-            </Button>
-            {aiSuggestion.length > 0 && (
-              <div className="mt-2">
-                <ul className="space-y-1">
-                  {aiSuggestion.map((s, i) => (
-                    <li key={i} className="text-xs text-slate-600">• {s}</li>
-                  ))}
-                </ul>
-                {aiIsFallback && (
-                  <p className="mt-2 text-xs text-slate-400">
-                    These are generic suggestions. To enable AI-powered feedback, add GEMINI_API_KEY to Vercel environment variables.
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Actions */}
