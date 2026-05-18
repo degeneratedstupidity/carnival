@@ -11,8 +11,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Goal, GoalSheet, Profile } from '@/types'
+import { Goal, GoalSheet, Profile, UoMType } from '@/types'
 import { Pencil, Check, X } from 'lucide-react'
+import { uomLabel } from '@/lib/scoring'
 
 interface ApprovalClientProps {
   manager: Profile
@@ -161,7 +162,7 @@ export function ApprovalClient({ manager, sheet, employee, initialGoals }: Appro
                         {goal.description && <p className="text-xs text-slate-400">{goal.description}</p>}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-500">{goal.uom_type.replace('_', ' ')}</td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{uomLabel(goal.uom_type as UoMType)}</td>
                     <td className="px-4 py-3 text-right">
                       {isEditing ? (
                         goal.uom_type === 'timeline' ? (

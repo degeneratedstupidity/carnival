@@ -43,12 +43,12 @@ export async function POST(request: Request) {
     const ai = new GoogleGenAI({ apiKey })
 
     const UOM_LABELS: Record<string, string> = {
-      min_numeric: 'minimize a number (lower is better)',
-      max_numeric: 'maximize a number (higher is better)',
-      min_percent: 'minimize a percentage (lower is better)',
-      max_percent: 'maximize a percentage (higher is better)',
-      timeline: 'complete by a deadline',
-      zero: 'zero incidents (binary pass/fail)',
+      min_numeric: 'higher is better — score = actual ÷ target (e.g. sales revenue, units produced)',
+      max_numeric: 'lower is better — score = target ÷ actual (e.g. turnaround time, cost, defects)',
+      min_percent: 'higher is better — score = actual % ÷ target % (e.g. on-time delivery rate)',
+      max_percent: 'lower is better — score = target % ÷ actual % (e.g. error rate, attrition)',
+      timeline: 'date-based completion — 100% if completed on or before deadline, reduces by 5% per day late',
+      zero: 'zero incidents = 100%, any incident = 0% (e.g. safety incidents, compliance violations)',
     }
     const targetStr = targetValue != null
       ? `${targetValue}${uomType?.includes('percent') ? '%' : ''}`

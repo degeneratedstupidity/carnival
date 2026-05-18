@@ -83,6 +83,19 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
       toast.error('Could not save check-in')
     } else {
       toast.success('Check-in saved')
+      // Sync actuals to any shared goals linked to this one
+      if (!goal.is_shared) {
+        const { data: linkedGoals } = await supabase
+          .from('goals')
+          .select('id')
+          .eq('shared_from_goal_id', goal.id)
+        for (const linked of linkedGoals ?? []) {
+          await supabase.from('check_ins').upsert({
+            ...payload,
+            goal_id: linked.id,
+          }, { onConflict: 'goal_id,quarter' })
+        }
+      }
     }
     setSaving(prev => ({ ...prev, [goal.id]: false }))
   }

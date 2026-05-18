@@ -108,6 +108,12 @@ export function GoalsClient({
     toast.success('Goal removed')
   }
 
+  async function handleWeightageChange(id: string, newWeight: number) {
+    const { error } = await supabase.from('goals').update({ weightage: newWeight }).eq('id', id)
+    if (error) { toast.error('Could not update weightage'); return }
+    setGoals(prev => prev.map(g => g.id === id ? { ...g, weightage: newWeight } : g))
+  }
+
   async function handleWithdraw() {
     if (!sheet) return
     setSubmitting(true)
@@ -250,7 +256,8 @@ export function GoalsClient({
                 key={goal.id}
                 goal={goal}
                 sheetStatus={sheetStatus}
-                onDelete={!isLocked && !isSubmitted ? handleDeleteGoal : undefined}
+                onDelete={!isLocked && !isSubmitted && !goal.is_shared ? handleDeleteGoal : undefined}
+                onWeightageChange={goal.is_shared && !isLocked && !isSubmitted ? handleWeightageChange : undefined}
               />
             ))}
           </div>

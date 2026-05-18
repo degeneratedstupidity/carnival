@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Profile, ThrustArea, Goal } from '@/types'
-import { Lock, Unlock } from 'lucide-react'
+import { Lock, Unlock, Share2 } from 'lucide-react'
 
 interface ChangeRequest {
   entity_id: string
@@ -28,12 +28,17 @@ interface AdminGoalsClientProps {
   changeRequests: ChangeRequest[]
 }
 
-export function AdminGoalsClient({ adminId, approvedSheets, changeRequests }: AdminGoalsClientProps) {
+export function AdminGoalsClient({ adminId, employees, approvedSheets, changeRequests }: AdminGoalsClientProps) {
   const supabase = createClient()
   const [unlockingGoal, setUnlockingGoal] = useState<Goal | null>(null)
   const [unlockReason, setUnlockReason] = useState('')
   const [saving, setSaving] = useState(false)
   const [sheets, setSheets] = useState(approvedSheets)
+
+  // Push shared goal state
+  const [pushingGoal, setPushingGoal] = useState<{ goal: Goal; sheetOwner: string } | null>(null)
+  const [selectedRecipients, setSelectedRecipients] = useState<Set<string>>(new Set())
+  const [pushing, setPushing] = useState(false)
 
   async function unlockGoalSheet(sheetId: string) {
     if (!unlockReason.trim()) { toast.error('Provide a reason for unlock'); return }
@@ -61,11 +66,43 @@ export function AdminGoalsClient({ adminId, approvedSheets, changeRequests }: Ad
     setSaving(false)
   }
 
+  async function pushSharedGoal() {
+    if (!pushingGoal || selectedRecipients.size === 0) {
+      toast.error('Select at least one employee')
+      return
+    }
+    setPushing(true)
+    try {
+      const res = await fetch('/api/shared-goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goalId: pushingGoal.goal.id, recipientIds: Array.from(selectedRecipients) }),
+      })
+      const data = await res.json()
+      if (data.error) { toast.error(data.error); return }
+      toast.success(`Pushed to ${data.created} employee${data.created !== 1 ? 's' : ''}${data.skipped > 0 ? ` (${data.skipped} skipped)` : ''}`)
+      setPushingGoal(null)
+      setSelectedRecipients(new Set())
+    } catch {
+      toast.error('Could not push goal')
+    } finally {
+      setPushing(false)
+    }
+  }
+
+  function toggleRecipient(id: string) {
+    setSelectedRecipients(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
   return (
     <div className="mx-auto max-w-4xl p-6">
       <h1 className="mb-2 text-xl font-bold text-slate-900">Goal Management</h1>
       <p className="mb-6 text-sm text-slate-500">
-        View approved goal sheets and unlock them for editing if needed. All unlocks are logged.
+        View approved goal sheets, unlock them for editing, or push goals to other employees as shared goals.
       </p>
 
       {sheets.length === 0 ? (
@@ -105,8 +142,26 @@ export function AdminGoalsClient({ adminId, approvedSheets, changeRequests }: Ad
               <div className="space-y-1">
                 {(sheet.goals ?? []).map(goal => (
                   <div key={goal.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                    <span className="text-slate-700">{goal.title}</span>
-                    <span className="text-xs text-slate-500">{goal.weightage}%</span>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-slate-700">{goal.title}</span>
+                      {goal.is_shared && (
+                        <Badge variant="outline" className="ml-2 text-xs text-purple-600 border-purple-300">Shared</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500">{goal.weightage}%</span>
+                      {!goal.is_shared && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { setPushingGoal({ goal, sheetOwner: sheet.employee?.id ?? '' }); setSelectedRecipients(new Set()) }}
+                          className="h-6 px-2 text-xs text-slate-500 hover:text-blue-600"
+                        >
+                          <Share2 className="mr-1 h-3 w-3" />
+                          Push
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -115,6 +170,7 @@ export function AdminGoalsClient({ adminId, approvedSheets, changeRequests }: Ad
         </div>
       )}
 
+      {/* Unlock Dialog */}
       <Dialog open={!!unlockingGoal} onOpenChange={() => { setUnlockingGoal(null); setUnlockReason('') }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Unlock goal sheet</DialogTitle></DialogHeader>
@@ -141,6 +197,53 @@ export function AdminGoalsClient({ adminId, approvedSheets, changeRequests }: Ad
               className="bg-amber-500 hover:bg-amber-600"
             >
               {saving ? 'Unlocking...' : 'Unlock sheet'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Push Shared Goal Dialog */}
+      <Dialog open={!!pushingGoal} onOpenChange={() => { setPushingGoal(null); setSelectedRecipients(new Set()) }}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Push goal to team members</DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-3">
+            {pushingGoal && (
+              <div className="rounded-lg bg-slate-50 p-3 text-sm">
+                <p className="font-medium text-slate-900">{pushingGoal.goal.title}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Target: {pushingGoal.goal.target_value ?? pushingGoal.goal.target_date ?? 'Not set'} · {pushingGoal.goal.weightage}% weight
+                </p>
+                <p className="text-xs text-slate-400 mt-1">Recipients can only adjust the weightage. Title and target are locked.</p>
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-medium text-slate-700 mb-2">Select employees to receive this goal:</p>
+              <div className="space-y-1 max-h-60 overflow-y-auto">
+                {employees
+                  .filter(e => e.id !== pushingGoal?.sheetOwner && e.role === 'employee')
+                  .map(e => (
+                    <label key={e.id} className="flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedRecipients.has(e.id)}
+                        onChange={() => toggleRecipient(e.id)}
+                        className="h-4 w-4 rounded border-slate-300 text-orange-500"
+                      />
+                      <div>
+                        <span className="text-sm text-slate-800">{e.name}</span>
+                        <span className="ml-2 text-xs text-slate-400">{e.department}</span>
+                      </div>
+                    </label>
+                  ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setPushingGoal(null); setSelectedRecipients(new Set()) }}>Cancel</Button>
+            <Button onClick={pushSharedGoal} disabled={pushing || selectedRecipients.size === 0} className="bg-orange-500 hover:bg-orange-600">
+              {pushing ? 'Pushing...' : `Push to ${selectedRecipients.size} employee${selectedRecipients.size !== 1 ? 's' : ''}`}
             </Button>
           </DialogFooter>
         </DialogContent>
