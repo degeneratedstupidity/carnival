@@ -7,9 +7,10 @@ import { AppShell } from '@/components/layout/AppShell'
 import { WeightageFuelGauge } from '@/components/goals/WeightageFuelGauge'
 import { GoalCard } from '@/components/goals/GoalCard'
 import { GoalForm } from '@/components/goals/GoalForm'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { validateGoalSet, getRemainingWeightage, GOAL_RULES } from '@/lib/validations'
 import { Goal, GoalCycle, GoalSheet, Profile, ThrustArea, GoalTemplate, SheetStatus } from '@/types'
@@ -37,6 +38,9 @@ export function GoalsClient({
   const [goals, setGoals] = useState<Goal[]>(initialGoals as Goal[])
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [requestingChange, setRequestingChange] = useState(false)
+  const [changeReason, setChangeReason] = useState('')
+  const [savingRequest, setSavingRequest] = useState(false)
 
   const sheetStatus: SheetStatus = sheet?.status ?? 'draft'
   const isLocked = sheetStatus === 'approved'
@@ -141,6 +145,22 @@ export function GoalsClient({
     router.refresh()
   }
 
+  async function submitChangeRequest() {
+    if (!changeReason.trim()) { toast.error('Add a reason for your request'); return }
+    if (!sheet) return
+    setSavingRequest(true)
+    const { error } = await supabase.from('audit_log').insert({
+      actor_id: profile.id,
+      action: 'change_requested',
+      entity_type: 'goal_sheets',
+      entity_id: sheet.id,
+      reason: changeReason,
+    })
+    if (error) { toast.error('Could not submit request'); }
+    else { toast.success('Request sent to admin'); setRequestingChange(false); setChangeReason('') }
+    setSavingRequest(false)
+  }
+
   const CycleBanner = () => {
     if (!activeCycle) return null
     const phase = activeCycle.phase
@@ -189,8 +209,16 @@ export function GoalsClient({
         <CycleBanner />
 
         {isLocked && (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-            Your goals are approved and locked. Contact your admin to make changes.
+          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 flex items-center justify-between gap-4">
+            <span>Your goals are approved and locked.</span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setRequestingChange(true)}
+              className="shrink-0 border-green-400 text-green-800 hover:bg-green-100 text-xs"
+            >
+              Request changes
+            </Button>
           </div>
         )}
         {isSubmitted && (
@@ -260,6 +288,31 @@ export function GoalsClient({
           </div>
         )}
       </div>
+
+      <Dialog open={requestingChange} onOpenChange={(o) => { if (!o) { setRequestingChange(false); setChangeReason('') } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request goal changes</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <p className="mb-3 text-sm text-slate-600">
+              Your admin will review this request and unlock your sheet if approved.
+            </p>
+            <Textarea
+              value={changeReason}
+              onChange={(e) => setChangeReason(e.target.value)}
+              placeholder="e.g. My role changed and one goal is no longer relevant"
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setRequestingChange(false); setChangeReason('') }}>Cancel</Button>
+            <Button onClick={submitChangeRequest} disabled={savingRequest} className="bg-orange-500 hover:bg-orange-600">
+              {savingRequest ? 'Sending...' : 'Send request'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">

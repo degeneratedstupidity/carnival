@@ -29,6 +29,16 @@ export default async function AdminGoalsPage() {
     employee: employeeMap.get(s.employee_id) ?? null,
   }))
 
+  const sheetIds = approvedSheets.map(s => s.id)
+  const { data: changeRequests } = sheetIds.length > 0
+    ? await supabase
+        .from('audit_log')
+        .select('entity_id, reason, created_at')
+        .eq('action', 'change_requested')
+        .in('entity_id', sheetIds)
+        .order('created_at', { ascending: false })
+    : { data: [] }
+
   return (
     <AppShell role="admin" name={profile.name} department={profile.department}>
       <AdminGoalsClient
@@ -36,6 +46,7 @@ export default async function AdminGoalsPage() {
         employees={employees ?? []}
         thrustAreas={thrustAreas ?? []}
         approvedSheets={approvedSheets}
+        changeRequests={changeRequests ?? []}
       />
     </AppShell>
   )

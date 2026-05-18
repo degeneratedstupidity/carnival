@@ -59,6 +59,7 @@ export async function POST(request: Request) {
     const prompt = `You are a goal-setting coach reviewing an employee goal in a corporate HR performance system.
 
 The system already handles: quarterly check-ins to log actuals, weightage scoring, and achievement computation. Do NOT suggest adding tracking, check-ins, or measurement systems — those are built in.
+Each goal is already assigned to the employee who created it — do not suggest defining an owner or assigning responsibility.
 
 Goal:
 - Title: ${goalTitle}

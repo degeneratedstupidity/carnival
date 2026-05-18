@@ -10,6 +10,12 @@ import { toast } from 'sonner'
 import { Profile, ThrustArea, Goal } from '@/types'
 import { Lock, Unlock } from 'lucide-react'
 
+interface ChangeRequest {
+  entity_id: string
+  reason: string
+  created_at: string
+}
+
 interface AdminGoalsClientProps {
   adminId: string
   employees: Profile[]
@@ -19,9 +25,10 @@ interface AdminGoalsClientProps {
     employee: Profile | null
     goals: Goal[]
   }>
+  changeRequests: ChangeRequest[]
 }
 
-export function AdminGoalsClient({ adminId, approvedSheets }: AdminGoalsClientProps) {
+export function AdminGoalsClient({ adminId, approvedSheets, changeRequests }: AdminGoalsClientProps) {
   const supabase = createClient()
   const [unlockingGoal, setUnlockingGoal] = useState<Goal | null>(null)
   const [unlockReason, setUnlockReason] = useState('')
@@ -90,6 +97,11 @@ export function AdminGoalsClient({ adminId, approvedSheets }: AdminGoalsClientPr
                   </Button>
                 </div>
               </div>
+              {changeRequests.filter(r => r.entity_id === sheet.id).slice(0, 1).map((r, i) => (
+                <div key={i} className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <span className="font-medium">Change requested: </span>{r.reason}
+                </div>
+              ))}
               <div className="space-y-1">
                 {(sheet.goals ?? []).map(goal => (
                   <div key={goal.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
