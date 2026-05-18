@@ -147,7 +147,7 @@ export function ApprovalClient({ manager, sheet, employee, initialGoals }: Appro
             <thead className="border-b border-slate-100 bg-slate-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Goal</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">UoM</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Measurement type</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600">Target</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600">Weight</th>
                 {!isAlreadyApproved && <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600">Edit</th>}

@@ -4,11 +4,14 @@ import { GoogleGenAI } from '@google/genai'
 const rateLimitMap = new Map<string, number>()
 const RATE_LIMIT_MS = 15_000
 
-const FALLBACK = [
-  'Make the goal more specific by adding a numeric target or measurable milestone.',
-  'Clarify how progress will be tracked — add a unit of measurement and a review date.',
-  'Ensure the goal directly ties to a team or department priority for this cycle.',
-]
+const UOM_LABELS: Record<string, string> = {
+  min_numeric: 'higher is better — score = actual ÷ target',
+  max_numeric: 'lower is better — score = target ÷ actual',
+  min_percent: 'higher is better — score = actual % ÷ target %',
+  max_percent: 'lower is better — score = target % ÷ actual %',
+  timeline: 'date-based — 100% if on/before deadline, −5% per day late',
+  zero: 'zero incidents = 100%, any incident = 0%',
+}
 
 // Debug GET — visit /api/ai in browser to check key status
 export async function GET() {
@@ -21,94 +24,65 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { userId, goalTitle, description, uomType, targetValue, targetDate, thrustArea } = await request.json()
+    const { userId, goalId, goalTitle, uomType, targetValue, targetDate, actualValue, actualDate, score, quarter } = await request.json()
 
     if (!userId || !goalTitle) {
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'missing_fields' })
+      return NextResponse.json({ coaching: null })
     }
 
-    // Rate limit: 1 call per 15s per user
-    const lastCall = rateLimitMap.get(userId) ?? 0
+    // Rate limit: 1 call per 15s per user+goal pair
+    const key = `${userId}:${goalId ?? goalTitle}`
+    const lastCall = rateLimitMap.get(key) ?? 0
     if (Date.now() - lastCall < RATE_LIMIT_MS) {
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true, rateLimited: true })
+      return NextResponse.json({ coaching: null, rateLimited: true })
     }
-    rateLimitMap.set(userId, Date.now())
+    rateLimitMap.set(key, Date.now())
 
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      console.error('[AI route] GEMINI_API_KEY is not set')
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'no_key' })
+      return NextResponse.json({ coaching: null })
     }
 
     const ai = new GoogleGenAI({ apiKey })
 
-    const UOM_LABELS: Record<string, string> = {
-      min_numeric: 'higher is better — score = actual ÷ target (e.g. sales revenue, units produced)',
-      max_numeric: 'lower is better — score = target ÷ actual (e.g. turnaround time, cost, defects)',
-      min_percent: 'higher is better — score = actual % ÷ target % (e.g. on-time delivery rate)',
-      max_percent: 'lower is better — score = target % ÷ actual % (e.g. error rate, attrition)',
-      timeline: 'date-based completion — 100% if completed on or before deadline, reduces by 5% per day late',
-      zero: 'zero incidents = 100%, any incident = 0% (e.g. safety incidents, compliance violations)',
-    }
     const targetStr = targetValue != null
       ? `${targetValue}${uomType?.includes('percent') ? '%' : ''}`
-      : targetDate
-      ? `by ${targetDate}`
-      : 'not set'
+      : targetDate ?? 'not set'
 
-    const prompt = `You are a goal-setting coach reviewing an employee goal in a corporate HR performance system.
+    const actualStr = actualValue != null
+      ? `${actualValue}${uomType?.includes('percent') ? '%' : ''}`
+      : actualDate ?? 'not recorded'
 
-The system already handles: quarterly check-ins to log actuals, weightage scoring, and achievement computation. Do NOT suggest adding tracking, check-ins, or measurement systems — those are built in.
-Each goal is already assigned to the employee who created it — do not suggest defining an owner or assigning responsibility.
+    const prompt = `You are a performance coach reviewing an employee's quarterly check-in in a corporate goal tracking system.
 
-Goal:
-- Title: ${goalTitle}
-- Description: ${description || '(none provided)'}
-- Measurement type: ${UOM_LABELS[uomType] ?? uomType}
-- Target: ${targetStr}
-- Strategic area: ${thrustArea || 'not specified'}
+Goal: ${goalTitle}
+Measurement: ${UOM_LABELS[uomType] ?? uomType}
+Target: ${targetStr}
+Actual: ${actualStr}
+Score: ${Math.round(score)}%
+Quarter: ${String(quarter).toUpperCase()}
 
-Give exactly 3 short coaching comments. Focus on:
-1. Whether the target (${targetStr}) is ambitious enough or too conservative — reference the actual number
-2. Whether the description is specific enough — does it define what counts as success beyond the number?
-3. One missing element that could cause this goal to fail: a baseline, a dependency, a risk, or an owner
+Write exactly 1–2 sentences of coaching. Be specific — use the actual numbers from above.
+Tell them whether they are on track, ahead, or behind, and give one concrete next step.
+Do not mention "check-ins", "logging", "tracking", or "systems" — focus only on the work itself.
+Plain English. Under 40 words total. No bullet points, no headers.`
 
-Rules:
-- Each comment must be under 20 words
-- Be specific, not generic — mention the goal title or number
-- Do NOT say "add a target", "track progress", or "add a measurement" — already done
-- Start each line with a dash (-)
-- Do not number the lines or add headers`
-
-    // Try models in order — lite is more likely on free tier
     const models = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash-lite']
     let text = ''
     for (const modelName of models) {
       try {
         const response = await ai.models.generateContent({ model: modelName, contents: prompt })
-        text = response.text ?? ''
+        text = response.text?.trim() ?? ''
         if (text) break
       } catch (modelErr) {
         console.warn(`[AI route] Model ${modelName} failed:`, modelErr instanceof Error ? modelErr.message : modelErr)
       }
     }
-    if (!text) throw new Error('All models failed')
 
-    const suggestions = text
-      .split('\n')
-      .map((l: string) => l.replace(/^[-•*]\s*/, '').trim())
-      .filter((l: string) => l.length > 0)
-      .slice(0, 3)
-
-    if (suggestions.length < 3) {
-      console.error('[AI route] Unexpected response format:', text)
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'bad_format', raw: text })
-    }
-
-    return NextResponse.json({ suggestions })
+    if (!text) return NextResponse.json({ coaching: null })
+    return NextResponse.json({ coaching: text })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[AI route] Gemini call failed:', msg)
-    return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'exception', error: msg })
+    console.error('[AI route] Gemini call failed:', err instanceof Error ? err.message : String(err))
+    return NextResponse.json({ coaching: null })
   }
 }

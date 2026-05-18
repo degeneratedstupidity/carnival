@@ -28,6 +28,8 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
     Object.fromEntries(initialCheckIns.map(ci => [ci.goal_id, ci]))
   )
   const [saving, setSaving] = useState<Record<string, boolean>>({})
+  const [coaching, setCoaching] = useState<Record<string, string>>({})
+  const [loadingCoaching, setLoadingCoaching] = useState<Record<string, boolean>>({})
 
   function getCheckin(goalId: string): Partial<CheckIn> {
     return checkIns[goalId] ?? { progress_status: 'not_started' }
@@ -96,6 +98,28 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
           }, { onConflict: 'goal_id,quarter' })
         }
       }
+      // Fire-and-forget AI coaching
+      setLoadingCoaching(prev => ({ ...prev, [goal.id]: true }))
+      fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: profile.id,
+          goalId: goal.id,
+          goalTitle: goal.title,
+          uomType: goal.uom_type,
+          targetValue: goal.target_value,
+          targetDate: goal.target_date,
+          actualValue: ci.actual_value ?? null,
+          actualDate: ci.actual_date ?? null,
+          score,
+          quarter: currentQuarter,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => { if (data.coaching) setCoaching(prev => ({ ...prev, [goal.id]: data.coaching })) })
+        .catch(() => {})
+        .finally(() => setLoadingCoaching(prev => ({ ...prev, [goal.id]: false })))
     }
     setSaving(prev => ({ ...prev, [goal.id]: false }))
   }
@@ -110,7 +134,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
             <ChevronLeft className="h-3.5 w-3.5" /> Back to my goals
           </Link>
           <h1 className="text-xl font-bold text-slate-900">{quarterLabel} Check-in</h1>
-          <p className="text-sm text-slate-500">{activeCycle.name} — Log your actual achievement</p>
+          <p className="text-sm text-slate-500">{activeCycle.name} — Record what you achieved this quarter</p>
         </div>
 
         <div className="space-y-4">
@@ -153,7 +177,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                     <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {needsValue && (
                         <div className="space-y-1">
-                          <label className="text-xs font-medium text-slate-600">Actual value</label>
+                          <label className="text-xs font-medium text-slate-600">What you achieved</label>
                           <Input
                             type="number"
                             value={ci.actual_value ?? ''}
@@ -165,7 +189,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                       )}
                       {needsDate && (
                         <div className="space-y-1">
-                          <label className="text-xs font-medium text-slate-600">Completion date</label>
+                          <label className="text-xs font-medium text-slate-600">Date completed</label>
                           <Input
                             type="date"
                             value={ci.actual_date ?? ''}
@@ -176,7 +200,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                       )}
                       {isZero && (
                         <div className="space-y-1">
-                          <label className="text-xs font-medium text-slate-600">Actual count</label>
+                          <label className="text-xs font-medium text-slate-600">Incidents recorded</label>
                           <Input
                             type="number"
                             min={0}
@@ -188,7 +212,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                         </div>
                       )}
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600">Status</label>
+                        <label className="text-xs font-medium text-slate-600">How is this going?</label>
                         <Select
                           value={ci.progress_status ?? 'not_started'}
                           onValueChange={(v) => { if (v) updateLocal(goal.id, { progress_status: v as ProgressStatus }) }}
@@ -206,8 +230,9 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-3">
+                  <div className="flex flex-col items-center gap-1">
                     <ScoreRing score={score} size={60} />
+                    <span className="text-xs text-slate-400">Score</span>
                     <Button
                       size="sm"
                       onClick={() => saveCheckin(goal)}
@@ -217,6 +242,14 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                       {saving[goal.id] ? 'Saving...' : 'Save'}
                     </Button>
                   </div>
+                  {loadingCoaching[goal.id] && (
+                    <p className="mt-2 text-xs text-slate-400 italic text-center">Getting insight...</p>
+                  )}
+                  {coaching[goal.id] && (
+                    <p className="mt-2 rounded bg-blue-50 px-2 py-1.5 text-xs text-blue-700 leading-relaxed">
+                      {coaching[goal.id]}
+                    </p>
+                  )}
                 </div>
               </div>
             )

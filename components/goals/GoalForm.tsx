@@ -114,7 +114,7 @@ export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit,
 
       {/* UoM Type */}
       <div className="space-y-1.5">
-        <Label>Unit of Measurement</Label>
+        <Label>How is this goal measured?</Label>
         <RadioGroup
           defaultValue="min_numeric"
           onValueChange={(v) => { setUomType(v as UoMType); setValue('uom_type', v as UoMType) }}
@@ -132,13 +132,14 @@ export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit,
             </label>
           ))}
         </RadioGroup>
+        <p className="text-xs text-slate-400">Choose the type that matches how your target is expressed.</p>
       </div>
 
       {/* Target — conditional on UoM type */}
       {(uomType === 'min_numeric' || uomType === 'max_numeric') && (
         <div className="space-y-1.5">
           <Label htmlFor="target_value">Target Value</Label>
-          <Input id="target_value" type="number" placeholder="e.g. 5000000" {...register('target_value')} />
+          <Input id="target_value" type="number" placeholder="e.g. 50,00,000" {...register('target_value')} />
         </div>
       )}
       {(uomType === 'min_percent' || uomType === 'max_percent') && (
@@ -161,7 +162,7 @@ export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit,
 
       {/* Weightage */}
       <div className="space-y-1.5">
-        <Label htmlFor="weightage">Weightage (%)</Label>
+        <Label htmlFor="weightage">Goal weight (%)</Label>
         <div className="flex items-center gap-2">
           <Input
             id="weightage"
@@ -171,7 +172,7 @@ export function GoalForm({ thrustAreas, templates, remainingWeightage, onSubmit,
             {...register('weightage', { valueAsNumber: true })}
             className="w-28"
           />
-          <span className="text-xs text-slate-500">{remainingWeightage}% remaining to assign</span>
+          <span className="text-xs text-slate-500">{remainingWeightage}% left to assign across all goals</span>
         </div>
         {errors.weightage && <p className="text-xs text-red-500">{errors.weightage.message}</p>}
       </div>

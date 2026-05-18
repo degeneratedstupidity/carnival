@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Goal, SheetStatus } from '@/types'
+import { Goal, SheetStatus, UoMType } from '@/types'
+import { uomLabel } from '@/lib/scoring'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -104,7 +105,7 @@ export function GoalCard({ goal, sheetStatus, avgScore = 0, onDelete, onWeightag
                     <button
                       onClick={() => setEditingWeight(true)}
                       className="rounded border border-dashed border-slate-300 px-2 py-0.5 text-xs text-slate-600 hover:border-orange-400 hover:text-orange-600"
-                      title="Click to edit weightage"
+                      title="Click to edit goal weight"
                     >
                       {goal.weightage}% weight (click to edit)
                     </button>
@@ -114,7 +115,7 @@ export function GoalCard({ goal, sheetStatus, avgScore = 0, onDelete, onWeightag
                 <span className="font-medium text-slate-700">{goal.weightage}% weight</span>
               )}
               <span>•</span>
-              <span>{goal.uom_type.replace('_', ' ')}</span>
+              <span>{uomLabel(goal.uom_type as UoMType)}</span>
               {goal.target_value !== null && (
                 <>
                   <span>•</span>

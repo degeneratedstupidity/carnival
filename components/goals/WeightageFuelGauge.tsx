@@ -28,7 +28,7 @@ export function WeightageFuelGauge({ used, max = 100 }: WeightageFuelGaugeProps)
   return (
     <div className="rounded-xl border p-4" style={{ background: bgColor, borderColor: fillColor + '40' }}>
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-700">Weightage used</span>
+        <span className="text-sm font-medium text-slate-700">Weight used</span>
         <span className="text-sm font-semibold" style={{ color: fillColor }}>
           {used}% / {max}%
         </span>
@@ -45,7 +45,7 @@ export function WeightageFuelGauge({ used, max = 100 }: WeightageFuelGaugeProps)
         {isOver
           ? `Over by ${-remaining}%. Reduce some goals.`
           : isExact
-          ? 'All weightage assigned. Ready to submit.'
+          ? 'All weight assigned. Ready to submit.'
           : `${remaining}% remaining to assign.`}
       </div>
     </div>

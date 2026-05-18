@@ -4,6 +4,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   BarChart, Bar, ResponsiveContainer,
 } from 'recharts'
+import { uomLabel } from '@/lib/scoring'
+import { UoMType } from '@/types'
 
 interface CheckinRow {
   quarter: string
@@ -36,15 +38,6 @@ const DEPT_COLORS: Record<string, string> = {
   HR: '#22c55e',
   Finance: '#f59e0b',
 }
-const UOM_LABELS: Record<string, string> = {
-  min_numeric: 'Min Num',
-  max_numeric: 'Max Num',
-  min_percent: 'Min %',
-  max_percent: 'Max %',
-  timeline: 'Timeline',
-  zero: 'Zero',
-}
-
 export function AnalyticsClient({ checkins, goals, managers, employees, sheets }: Props) {
   // QoQ trend: avg score by quarter by department
   const deptSet = new Set<string>()
@@ -74,11 +67,11 @@ export function AnalyticsClient({ checkins, goals, managers, employees, sheets }
   const thrustUomAccum: Record<string, Record<string, number>> = {}
   for (const g of goals) {
     const area = g.thrust_area_name ?? 'Other'
-    const uom = UOM_LABELS[g.uom_type] ?? g.uom_type
+    const uom = uomLabel(g.uom_type as UoMType)
     if (!thrustUomAccum[area]) thrustUomAccum[area] = {}
     thrustUomAccum[area][uom] = (thrustUomAccum[area][uom] ?? 0) + 1
   }
-  const allUoms = Array.from(new Set(goals.map(g => UOM_LABELS[g.uom_type] ?? g.uom_type)))
+  const allUoms = Array.from(new Set(goals.map(g => uomLabel(g.uom_type as UoMType))))
   const distData = Object.entries(thrustUomAccum).map(([area, counts]) => ({
     area, ...counts,
   }))
@@ -138,7 +131,7 @@ export function AnalyticsClient({ checkins, goals, managers, employees, sheets }
 
       {/* Goal Distribution */}
       <section>
-        <h2 className="text-sm font-semibold text-slate-700 mb-4">Goal Distribution by Thrust Area and UoM Type</h2>
+        <h2 className="text-sm font-semibold text-slate-700 mb-4">Goal Distribution by Thrust Area and Measurement Type</h2>
         {distData.length === 0 ? (
           <div className="rounded-xl border-2 border-dashed border-slate-200 p-10 text-center text-sm text-slate-500">
             No goals created yet.

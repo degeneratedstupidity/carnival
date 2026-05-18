@@ -185,7 +185,7 @@ export function GoalsClient({
     if (['q1', 'q2', 'q3', 'q4'].includes(phase)) {
       return (
         <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800">
-          {phase.toUpperCase()} check-in is open. Log your actuals in the Check-in tab.
+          {phase.toUpperCase()} check-in is open. Record your progress in the Check-in tab.
         </div>
       )
     }

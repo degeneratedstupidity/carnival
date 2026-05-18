@@ -42,7 +42,7 @@ export function ScoreRing({ score, size = 56, strokeWidth = 5, showLabel = true 
       </svg>
       {showLabel && (
         <span className="absolute text-xs font-semibold" style={{ color }}>
-          {Math.round(score)}%
+          {score === 0 ? '—' : `${Math.round(score)}%`}
         </span>
       )}
     </div>
