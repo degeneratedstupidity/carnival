@@ -145,13 +145,13 @@ export function AnalyticsClient({ checkins, goals, managers, employees, sheets }
           </div>
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={distData} margin={{ top: 8, right: 24, left: 0, bottom: 80 }}>
+            <ResponsiveContainer width="100%" height={340}>
+              <BarChart data={distData} margin={{ top: 8, right: 24, left: 0, bottom: 90 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="area" tick={{ fontSize: 11 }} angle={-40} textAnchor="end" interval={0} dy={5} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Legend />
+                <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: 12 }} />
                 {allUoms.map((u, i) => {
                   const colors = ['#3b82f6', '#f97316', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444']
                   return <Bar key={u} dataKey={u} stackId="a" fill={colors[i % 6]} />

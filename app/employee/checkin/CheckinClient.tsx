@@ -145,7 +145,7 @@ export function CheckinClient({ profile, activeCycle, goals, initialCheckIns, cu
                             type="number"
                             value={ci.actual_value ?? ''}
                             onChange={(e) => updateLocal(goal.id, { actual_value: e.target.value ? parseFloat(e.target.value) : undefined })}
-                            placeholder={goal.target_value != null ? `e.g. ${goal.target_value}` : 'Enter actual'}
+                            placeholder="Enter actual value"
                             className="h-8 text-sm"
                           />
                         </div>
