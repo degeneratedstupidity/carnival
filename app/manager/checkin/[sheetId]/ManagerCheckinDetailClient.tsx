@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
+import { MessageSquare, Save } from 'lucide-react'
 
 interface Props {
   managerId: string
@@ -31,30 +32,40 @@ export function ManagerCheckinDetailClient({ managerId, employeeId, cycleId, qua
     if (error) {
       toast.error('Could not save comment')
     } else {
-      toast.success('Comment saved')
+      toast.success('Session notes saved')
     }
     setSaving(false)
   }
 
   return (
-    <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
-      <p className="mb-2 text-sm font-medium text-slate-700">Session notes</p>
-      <p className="mb-3 text-xs text-slate-500">
-        Add observations or coaching notes for this check-in session. Visible to you only.
+    <div
+      className="mt-6 rounded-2xl border p-5"
+      style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+    >
+      <div className="mb-3 flex items-center gap-2">
+        <MessageSquare className="h-4 w-4" style={{ color: '#3b82f6' }} />
+        <p className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--foreground)' }}>
+          Session Notes
+        </p>
+      </div>
+      <p className="mb-4 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+        Add observations or coaching notes for this check-in. Visible to managers only.
       </p>
       <Textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="e.g. Revenue is on track, needs to accelerate training hours in Q3."
         rows={3}
-        className="mb-3"
+        className="mb-4"
       />
       <Button
         onClick={saveComment}
         disabled={saving || !comment.trim()}
-        className="bg-orange-500 hover:bg-orange-600"
+        className="h-10 rounded-xl text-xs font-black uppercase tracking-widest"
+        style={{ background: '#3b82f6', color: 'white' }}
       >
-        {saving ? 'Saving...' : 'Save notes'}
+        <Save className="mr-2 h-3.5 w-3.5" />
+        {saving ? 'Saving...' : 'Save Notes'}
       </Button>
     </div>
   )

@@ -39,63 +39,54 @@ export function UsersClient({ profiles, managers }: UsersClientProps) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <h1 className="mb-6 text-xl font-bold text-slate-900">Users</h1>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+    <div className="mx-auto max-w-5xl space-y-8 p-6">
+      <div className="border-b pb-8" style={{ borderColor: 'var(--border)' }}>
+        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em]" style={{ color: '#7c3aed' }}>Admin Panel</p>
+        <h1 className="text-5xl font-extrabold uppercase leading-none tracking-tight" style={{ fontFamily: 'var(--font-syne)', color: 'var(--foreground)' }}>Users</h1>
+        <p className="mt-3 text-sm" style={{ color: 'var(--muted-foreground)' }}>Manage roles, departments, and manager assignments</p>
+      </div>
+      <div className="overflow-x-auto rounded-2xl border" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
         <table className="w-full text-sm">
-          <thead className="border-b border-slate-100 bg-slate-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Name</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Role</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Department</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">Reports to</th>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}>
+              {['Name', 'Role', 'Department', 'Reports To'].map(h => (
+                <th key={h} className="px-5 py-3.5 text-left text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>{h}</th>
+              ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {users.map(u => (
-              <tr key={u.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <p className="font-medium text-slate-900">{u.name}</p>
-                  <p className="text-xs text-slate-400">{u.email}</p>
+              <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td className="px-5 py-4">
+                  <p className="font-black uppercase tracking-tight" style={{ color: 'var(--foreground)', fontFamily: 'var(--font-syne)' }}>{u.name}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{u.email}</p>
                 </td>
-                <td className="px-4 py-3">
-                  <Badge
-                    variant="outline"
-                    className="capitalize text-xs"
-                    style={{ borderColor: ROLE_COLORS[u.role], color: ROLE_COLORS[u.role] }}
-                  >
+                <td className="px-5 py-4">
+                  <span className="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest" style={{ background: ROLE_COLORS[u.role] + '18', color: ROLE_COLORS[u.role] }}>
                     {u.role}
-                  </Badge>
+                  </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-4">
                   <input
-                    className="rounded border border-slate-200 px-2 py-1 text-xs w-28"
+                    className="rounded-xl border px-3 py-1.5 text-xs"
+                    style={{ background: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)', width: '7rem' }}
                     defaultValue={u.department ?? ''}
                     onBlur={(e) => { if (e.target.value !== u.department) updateDepartment(u.id, e.target.value) }}
                   />
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-4">
                   {u.role === 'employee' ? (
-                    <Select
-                      value={u.manager_id ?? 'none'}
-                      onValueChange={(v) => v && updateManager(u.id, v)}
-                    >
-                      <SelectTrigger className="h-7 w-40 text-xs">
-                        <span className="truncate">
-                          {u.manager_id
-                            ? (managers.find(m => m.id === u.manager_id)?.name ?? 'Unknown')
-                            : 'No manager'}
-                        </span>
+                    <Select value={u.manager_id ?? 'none'} onValueChange={(v) => v && updateManager(u.id, v)}>
+                      <SelectTrigger className="h-8 w-44 text-xs">
+                        <span className="truncate">{u.manager_id ? (managers.find(m => m.id === u.manager_id)?.name ?? 'Unknown') : 'No manager'}</span>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">No manager</SelectItem>
-                        {managers.map(m => (
-                          <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                        ))}
+                        {managers.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <span className="text-xs text-slate-400">—</span>
+                    <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>—</span>
                   )}
                 </td>
               </tr>

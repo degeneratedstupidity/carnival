@@ -5,33 +5,44 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Role } from '@/types'
 import { ThemeToggle } from './ThemeToggle'
+import {
+  Target, CheckCircle2, Star, Users, PieChart, ShieldAlert,
+  LayoutDashboard, Settings, BarChart2, FileText, Layers,
+  ClipboardList, Shield, LogOut
+} from 'lucide-react'
 
 const employeeNav = [
-  { label: 'My Goals', href: '/employee/goals' },
-  { label: 'Check-in', href: '/employee/checkin' },
+  { label: 'My Goals', href: '/employee/goals', icon: Target },
+  { label: 'Check-in', href: '/employee/checkin', icon: CheckCircle2 },
 ]
 
 const managerNav = [
-  { label: 'Approvals', href: '/manager/approvals' },
-  { label: 'Check-ins', href: '/manager/checkin' },
+  { label: 'Approvals', href: '/manager/approvals', icon: Star },
+  { label: 'Check-ins', href: '/manager/checkin', icon: CheckCircle2 },
 ]
 
 const adminNav = [
-  { label: 'Dashboard', href: '/admin/dashboard' },
-  { label: 'Analytics', href: '/admin/analytics' },
-  { label: 'Reports', href: '/admin/reports' },
-  { label: 'Cycles', href: '/admin/cycles' },
-  { label: 'Users', href: '/admin/users' },
-  { label: 'Goals', href: '/admin/goals' },
-  { label: 'Thrust Areas', href: '/admin/thrust-areas' },
-  { label: 'Escalations', href: '/admin/escalations' },
-  { label: 'Audit Log', href: '/admin/audit' },
+  { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'Analytics', href: '/admin/analytics', icon: PieChart },
+  { label: 'Reports', href: '/admin/reports', icon: FileText },
+  { label: 'Cycles', href: '/admin/cycles', icon: BarChart2 },
+  { label: 'Users', href: '/admin/users', icon: Users },
+  { label: 'Goals', href: '/admin/goals', icon: Target },
+  { label: 'Thrust Areas', href: '/admin/thrust-areas', icon: Layers },
+  { label: 'Escalations', href: '/admin/escalations', icon: ShieldAlert },
+  { label: 'Audit Log', href: '/admin/audit', icon: ClipboardList },
 ]
 
 const navByRole: Record<Role, typeof employeeNav> = {
   employee: employeeNav,
   manager: managerNav,
   admin: adminNav,
+}
+
+const roleMeta: Record<Role, { label: string; accentColor: string; accentBg: string }> = {
+  employee: { label: 'Employee', accentColor: '#fbbf24', accentBg: 'rgba(245,158,11,0.12)' },
+  manager:  { label: 'Manager',  accentColor: '#93c5fd', accentBg: 'rgba(59,130,246,0.12)' },
+  admin:    { label: 'Admin',    accentColor: '#c4b5fd', accentBg: 'rgba(124,58,237,0.12)' },
 }
 
 interface SidebarProps {
@@ -43,68 +54,124 @@ interface SidebarProps {
 export function Sidebar({ role, name, department }: SidebarProps) {
   const pathname = usePathname()
   const nav = navByRole[role]
-
-  const roleBadgeStyle = {
-    admin: { background: 'rgba(124,58,237,0.15)', color: '#a78bfa' },
-    manager: { background: 'rgba(59,130,246,0.15)', color: '#93c5fd' },
-    employee: { background: 'rgba(245,158,11,0.15)', color: '#fbbf24' },
-  }[role]
+  const meta = roleMeta[role]
 
   return (
-    <div className="flex h-full w-56 flex-col border-r border-slate-200 bg-white dark:border-[#22222e] dark:bg-[#0d0d14]">
-      <div className="flex items-center gap-2.5 border-b border-slate-100 px-4 py-4 dark:border-[#22222e]">
+    <div
+      className="flex h-full w-56 shrink-0 flex-col border-r"
+      style={{
+        borderColor: 'var(--border)',
+        background: 'var(--sidebar)',
+        color: 'var(--sidebar-foreground)',
+      }}
+    >
+      {/* Brand */}
+      <div
+        className="flex items-center gap-2.5 px-5 py-4 border-b"
+        style={{ borderColor: 'var(--sidebar-border)' }}
+      >
         <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-sm font-bold text-white dark:shadow-[0_0_14px_rgba(245,158,11,0.4)]"
-          style={{ fontFamily: 'var(--font-syne)' }}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-extrabold text-[#09090f]"
+          style={{
+            background: '#f59e0b',
+            boxShadow: '0 0 14px rgba(245,158,11,0.4)',
+            fontFamily: 'var(--font-syne)',
+          }}
         >
           C
         </div>
         <div>
           <p
-            className="text-sm font-bold tracking-wide text-slate-900 dark:text-[#f0f0f6]"
-            style={{ fontFamily: 'var(--font-syne)' }}
+            className="text-sm font-bold tracking-wide"
+            style={{ fontFamily: 'var(--font-syne)', color: 'var(--sidebar-foreground)' }}
           >
             Carnival
           </p>
-          <p className="text-xs text-slate-500 dark:text-[#8888a3]">Goal Tracker</p>
+          <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Goal Tracker</p>
         </div>
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 overflow-y-auto p-3">
-        <div className="mb-4">
-          <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-[#5a5a72]">
-            {role === 'employee' ? 'My Workspace' : role === 'manager' ? 'Manager View' : 'Admin Panel'}
-          </p>
-          <ul className="space-y-0.5">
-            {nav.map((item) => (
+        <p
+          className="mb-3 px-2 text-[9px] font-black uppercase tracking-[0.25em]"
+          style={{ color: 'var(--muted-foreground)' }}
+        >
+          {role === 'employee' ? 'My Workspace' : role === 'manager' ? 'Manager View' : 'Admin Panel'}
+        </p>
+        <ul className="space-y-0.5">
+          {nav.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(item.href + '/')
+            const Icon = item.icon
+            return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center rounded-lg px-3 py-2 text-sm transition-colors',
-                    pathname === item.href || pathname.startsWith(item.href + '/')
-                      ? 'bg-orange-50 font-medium text-orange-700 dark:bg-[rgba(245,158,11,0.12)] dark:text-[#fbbf24]'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-[#8888a3] dark:hover:bg-white/5 dark:hover:text-[#f0f0f6]'
+                    'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-widest transition-all duration-150',
                   )}
+                  style={
+                    active
+                      ? {
+                          background: 'rgba(245,158,11,0.12)',
+                          color: '#f59e0b',
+                        }
+                      : {
+                          color: 'var(--muted-foreground)',
+                        }
+                  }
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                      e.currentTarget.style.color = 'var(--foreground)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = ''
+                      e.currentTarget.style.color = 'var(--muted-foreground)'
+                    }
+                  }}
                 >
-                  {item.label}
+                  <Icon
+                    className="h-3.5 w-3.5 shrink-0"
+                    style={{ color: active ? '#f59e0b' : 'currentColor' }}
+                  />
+                  <span>{item.label}</span>
+                  {active && (
+                    <span
+                      className="ml-auto h-1.5 w-1.5 rounded-full"
+                      style={{ background: '#f59e0b' }}
+                    />
+                  )}
                 </Link>
               </li>
-            ))}
-          </ul>
-        </div>
+            )
+          })}
+        </ul>
       </nav>
 
-      <div className="border-t border-slate-100 p-4 dark:border-[#22222e]">
+      {/* User footer */}
+      <div
+        className="border-t p-4"
+        style={{ borderColor: 'var(--sidebar-border)' }}
+      >
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-slate-900 dark:text-[#f0f0f6]">{name}</p>
-            <p className="text-xs text-slate-500 dark:text-[#8888a3]">{department ?? role}</p>
-            <span
-              className="mt-1 inline-block rounded px-1.5 py-0.5 text-xs font-medium capitalize"
-              style={roleBadgeStyle}
+          <div className="min-w-0 flex-1">
+            <p
+              className="truncate text-xs font-black uppercase tracking-tight"
+              style={{ color: 'var(--sidebar-foreground)', fontFamily: 'var(--font-syne)' }}
             >
-              {role}
+              {name}
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--muted-foreground)' }}>
+              {department ?? role}
+            </p>
+            <span
+              className="mt-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+              style={{ background: meta.accentBg, color: meta.accentColor }}
+            >
+              {meta.label}
             </span>
           </div>
           <ThemeToggle />

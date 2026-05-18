@@ -187,3 +187,29 @@
 /* Hover states */
 .dark .hover\:bg-slate-50:hover { background-color: rgba(255,255,255,0.03) !important; }
 .dark .hover\:bg-slate-100:hover { background-color: rgba(255,255,255,0.05) !important; }
+
+/* ── Carnival Brand Utilities ─────────────────────────── */
+/* Score ring glow effects */
+.score-glow-success { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5)); }
+.score-glow-amber   { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5)); }
+.score-glow-rose    { filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.5)); }
+.gauge-glow         { filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.6)); }
+
+/* Font utility */
+.font-display { font-family: var(--font-syne), sans-serif; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+/* Smooth transitions on theme toggle */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Override: buttons / inputs shouldn't have the global transition */
+button, input, textarea, select { transition: none; }

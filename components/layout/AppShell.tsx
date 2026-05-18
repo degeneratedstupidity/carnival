@@ -13,7 +13,7 @@ interface AppShellProps {
 
 export function AppShell({ role, name, department, children }: AppShellProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       <Sidebar role={role} name={name} department={department} />
       <main className="flex-1 overflow-y-auto">
         {children}

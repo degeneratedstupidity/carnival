@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AppShell } from '@/components/layout/AppShell'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { ScoreRing } from '@/components/goals/ScoreRing'
 import Link from 'next/link'
+import { ChevronRight, Users } from 'lucide-react'
 
 export default async function ManagerCheckinPage() {
   const supabase = await createClient()
@@ -22,18 +21,11 @@ export default async function ManagerCheckinPage() {
   const quarter = validQuarters.includes(activePhase) ? activePhase : 'q1'
 
   const approvedSheets = teamIds.length > 0 && activeCycle
-    ? (await supabase
-        .from('goal_sheets')
-        .select('*')
-        .in('employee_id', teamIds)
-        .eq('cycle_id', activeCycle.id)
-        .eq('status', 'approved')).data ?? []
+    ? (await supabase.from('goal_sheets').select('*').in('employee_id', teamIds).eq('cycle_id', activeCycle.id).eq('status', 'approved')).data ?? []
     : []
 
   const teamMap = new Map((team ?? []).map(t => [t.id, t]))
-
   const sheetIds = approvedSheets.map(s => s.id)
-
   const allGoals = sheetIds.length > 0
     ? (await supabase.from('goals').select('*, check_ins(*)').in('sheet_id', sheetIds)).data ?? []
     : []
@@ -57,17 +49,35 @@ export default async function ManagerCheckinPage() {
 
   return (
     <AppShell role="manager" name={manager.name} department={manager.department}>
-      <div className="mx-auto max-w-3xl p-6">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-slate-900">Team Check-ins</h1>
-          <p className="text-sm text-slate-500">
+      <div className="mx-auto max-w-3xl space-y-8 p-6">
+
+        {/* ── Header ── */}
+        <div className="border-b pb-8" style={{ borderColor: 'var(--border)' }}>
+          <p className="mb-2 text-xs font-black uppercase tracking-[0.25em]" style={{ color: '#3b82f6' }}>Manager View</p>
+          <h1
+            className="text-5xl font-extrabold uppercase leading-none tracking-tight"
+            style={{ fontFamily: 'var(--font-syne)', color: 'var(--foreground)' }}
+          >
+            Team<br />Check-ins
+          </h1>
+          <p className="mt-3 text-sm" style={{ color: 'var(--muted-foreground)' }}>
             {activeCycle ? `${activeCycle.name} — ${quarter.toUpperCase()}` : 'No active cycle'}
           </p>
         </div>
 
+        {/* ── Team cards ── */}
         {approvedSheets.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center">
-            <p className="text-sm text-slate-500">No approved goal sheets found</p>
+          <div
+            className="flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed py-20 text-center"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <Users className="h-10 w-10" style={{ color: 'var(--muted-foreground)' }} />
+            <div>
+              <p className="font-bold" style={{ color: 'var(--foreground)' }}>No approved goal sheets</p>
+              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                Check-in data appears once your team's goals are approved
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
@@ -78,28 +88,44 @@ export default async function ManagerCheckinPage() {
               const checkedInCount = sheetGoals.filter(g =>
                 g.check_ins?.some((ci: { quarter: string; computed_score: number | null }) => ci.quarter === quarter && ci.computed_score !== null)
               ).length
+              const scoreColor = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#f43f5e'
 
               return (
                 <Link key={sheet.id} href={`/manager/checkin/${sheet.id}`}>
-                  <Card className="transition-shadow hover:shadow-md">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-slate-900">{emp?.name}</p>
-                          <p className="text-xs text-slate-500">{emp?.department}</p>
-                          <div className="mt-2 flex items-center gap-2">
-                            <Progress value={score} className="h-1.5 w-32" />
-                            <span className="text-xs text-slate-500">{score}% avg score</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <Badge variant="outline" className="text-xs">
-                            {checkedInCount}/{sheetGoals.length} goals updated
-                          </Badge>
+                  <div
+                    className="flex items-center justify-between gap-6 rounded-2xl border p-5 transition-all hover:border-[rgba(59,130,246,0.4)]"
+                    style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white"
+                        style={{ background: '#3b82f6' }}
+                      >
+                        {emp?.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-black uppercase tracking-tight" style={{ color: 'var(--foreground)', fontFamily: 'var(--font-syne)' }}>
+                          {emp?.name}
+                        </p>
+                        <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{emp?.department}</p>
+                        <div className="mt-1.5 h-1.5 w-32 overflow-hidden rounded-full" style={{ background: 'var(--muted)' }}>
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min(score, 100)}%`, background: scoreColor }}
+                          />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>
+                          {checkedInCount}/{sheetGoals.length} goals
+                        </p>
+                        <ScoreRing score={score} size={44} />
+                      </div>
+                      <ChevronRight className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                    </div>
+                  </div>
                 </Link>
               )
             })}
