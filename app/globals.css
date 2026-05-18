@@ -8,8 +8,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
+  --font-syne: var(--font-syne);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-syne);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,8 +49,9 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ── Carnival Day (light mode) ─────────────────────────── */
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.979 0.007 85);   /* warm cream */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -64,14 +66,15 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.908 0.006 85);        /* warm border */
+  --input: oklch(0.908 0.006 85);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --chart-1: #f59e0b;
+  --chart-2: #7c3aed;
+  --chart-3: #3b82f6;
+  --chart-4: #10b981;
+  --chart-5: #f43f5e;
+  --ring-track: #e2e8f0;
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -79,42 +82,44 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.908 0.006 85);
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* ── Carnival Night (dark mode) ────────────────────────── */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #09090f;
+  --foreground: #f0f0f6;
+  --card: #111119;
+  --card-foreground: #f0f0f6;
+  --popover: #1a1a26;
+  --popover-foreground: #f0f0f6;
+  --primary: #f59e0b;
+  --primary-foreground: #09090f;
+  --secondary: #1a1a26;
+  --secondary-foreground: #f0f0f6;
+  --muted: #1a1a26;
+  --muted-foreground: #8888a3;
+  --accent: #1e1e2c;
+  --accent-foreground: #f0f0f6;
+  --destructive: #f43f5e;
+  --border: #22222e;
+  --input: #22222e;
+  --ring: rgba(245,158,11,0.25);
+  --chart-1: #f59e0b;
+  --chart-2: #7c3aed;
+  --chart-3: #3b82f6;
+  --chart-4: #10b981;
+  --chart-5: #f43f5e;
+  --ring-track: #22222e;
+  --sidebar: #0d0d14;
+  --sidebar-foreground: #f0f0f6;
+  --sidebar-primary: #f59e0b;
+  --sidebar-primary-foreground: #09090f;
+  --sidebar-accent: #1a1a26;
+  --sidebar-accent-foreground: #f0f0f6;
+  --sidebar-border: #22222e;
+  --sidebar-ring: rgba(245,158,11,0.25);
 }
 
 @layer base {
@@ -127,4 +132,58 @@
   html {
     @apply font-sans;
   }
+  h1, h2, h3 {
+    font-family: var(--font-syne), var(--font-sans);
+  }
 }
+
+/* ── Dark-mode overrides for hardcoded Tailwind classes ─── */
+/* This block makes the entire app dark without touching each file. */
+.dark .bg-white,
+.dark .bg-slate-50 { background-color: var(--card) !important; }
+.dark .bg-slate-100 { background-color: var(--muted) !important; }
+.dark .bg-slate-200 { background-color: #2a2a38 !important; }
+
+.dark .text-slate-900,
+.dark .text-slate-800 { color: var(--foreground) !important; }
+.dark .text-slate-700 { color: #c8c8dc !important; }
+.dark .text-slate-600,
+.dark .text-slate-500 { color: var(--muted-foreground) !important; }
+.dark .text-slate-400 { color: #5a5a72 !important; }
+
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-slate-300 { border-color: var(--border) !important; }
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+/* Status colors */
+.dark .bg-orange-50 { background-color: rgba(245,158,11,0.1) !important; }
+.dark .text-orange-700,
+.dark .text-orange-800 { color: #fbbf24 !important; }
+.dark .border-orange-200,
+.dark .border-orange-300 { border-color: rgba(245,158,11,0.25) !important; }
+
+.dark .bg-blue-50 { background-color: rgba(59,130,246,0.1) !important; }
+.dark .text-blue-800,
+.dark .text-blue-700 { color: #93c5fd !important; }
+.dark .border-blue-200 { border-color: rgba(59,130,246,0.2) !important; }
+
+.dark .bg-green-50 { background-color: rgba(16,185,129,0.1) !important; }
+.dark .text-green-800,
+.dark .text-green-700 { color: #6ee7b7 !important; }
+.dark .border-green-200,
+.dark .border-green-400 { border-color: rgba(16,185,129,0.25) !important; }
+
+.dark .bg-red-50 { background-color: rgba(244,63,94,0.1) !important; }
+.dark .text-red-800 { color: #fca5a5 !important; }
+.dark .border-red-200 { border-color: rgba(244,63,94,0.2) !important; }
+
+.dark .bg-amber-50 { background-color: rgba(245,158,11,0.1) !important; }
+.dark .text-amber-700 { color: #fcd34d !important; }
+.dark .border-amber-300 { border-color: rgba(245,158,11,0.25) !important; }
+
+/* Hover states */
+.dark .hover\:bg-slate-50:hover { background-color: rgba(255,255,255,0.03) !important; }
+.dark .hover\:bg-slate-100:hover { background-color: rgba(255,255,255,0.05) !important; }

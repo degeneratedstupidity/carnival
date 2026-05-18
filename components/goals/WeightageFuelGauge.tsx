@@ -1,5 +1,7 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+
 interface WeightageFuelGaugeProps {
   used: number
   max?: number
@@ -12,32 +14,37 @@ export function WeightageFuelGauge({ used, max = 100 }: WeightageFuelGaugeProps)
   const isExact = used === max
 
   const fillColor = isOver
-    ? '#ef4444'
+    ? '#f43f5e'
     : isExact
-    ? '#22c55e'
+    ? '#10b981'
     : used >= 80
-    ? '#f97316'
+    ? '#f59e0b'
     : '#3b82f6'
 
-  const bgColor = isOver
-    ? '#fef2f2'
-    : isExact
-    ? '#f0fdf4'
-    : '#f1f5f9'
-
   return (
-    <div className="rounded-xl border p-4" style={{ background: bgColor, borderColor: fillColor + '40' }}>
+    <div
+      className={cn(
+        'rounded-xl border p-4',
+        isOver ? 'border-red-200 bg-red-50' :
+        isExact ? 'border-green-200 bg-green-50' :
+        'border-slate-200 bg-slate-50'
+      )}
+    >
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-medium text-slate-700">Weight used</span>
-        <span className="text-sm font-semibold" style={{ color: fillColor }}>
+        <span className="text-sm font-bold" style={{ color: fillColor, fontFamily: 'var(--font-syne)' }}>
           {used}% / {max}%
         </span>
       </div>
 
-      <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-200">
+      <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-[#22222e]">
         <div
-          className="h-full rounded-full transition-all duration-300"
-          style={{ width: `${Math.min(percent, 100)}%`, background: fillColor }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{
+            width: `${Math.min(percent, 100)}%`,
+            background: `linear-gradient(90deg, ${fillColor}99, ${fillColor})`,
+            boxShadow: isExact ? `0 0 10px ${fillColor}80` : undefined,
+          }}
         />
       </div>
 
