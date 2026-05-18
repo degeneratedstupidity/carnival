@@ -188,7 +188,7 @@ export function AdminDashboardClient({
         {/* Live Activity */}
         <div
           className="col-span-12 flex flex-col overflow-hidden rounded-2xl border p-6 lg:col-span-4"
-          style={{ background: 'var(--foreground)', borderColor: 'transparent' }}
+          style={{ background: '#0f172a', borderColor: 'transparent' }}
         >
           <div className="relative z-10 flex-1">
             <p
