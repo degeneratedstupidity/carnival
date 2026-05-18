@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ThrustArea, UoMType, GoalTemplate } from '@/types'
 import { GOAL_RULES } from '@/lib/validations'
@@ -41,6 +41,7 @@ interface GoalFormProps {
 export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, onSubmit, onCancel }: GoalFormProps) {
   const [uomType, setUomType] = useState<UoMType>('min_numeric')
   const [aiSuggestion, setAiSuggestion] = useState<string[]>([])
+  const [aiIsFallback, setAiIsFallback] = useState(false)
   const [loadingAi, setLoadingAi] = useState(false)
   const [showAi, setShowAi] = useState(false)
   const [selectedThrustId, setSelectedThrustId] = useState('')
@@ -75,8 +76,12 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
         body: JSON.stringify({ userId, goalTitle: title, description, uomType, thrustArea: thrustAreas.find(t => t.id === selectedThrustId)?.name }),
       })
       const data = await res.json()
-      if (data.suggestions) setAiSuggestion(data.suggestions)
-      else toast.error('Could not get suggestions right now')
+      if (data.suggestions) {
+        setAiSuggestion(data.suggestions)
+        setAiIsFallback(!!data.fallback)
+      } else {
+        toast.error('Could not get suggestions right now')
+      }
     } catch {
       toast.error('Could not get suggestions right now')
     } finally {
@@ -95,7 +100,9 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
         <Label>Thrust Area</Label>
         <Select value={selectedThrustId} onValueChange={(v: string | null) => { if (v) { setValue('thrust_area_id', v); setSelectedThrustId(v) } }}>
           <SelectTrigger>
-            <SelectValue placeholder="Select thrust area" />
+            <span className="truncate text-sm">
+              {thrustAreas.find(t => t.id === selectedThrustId)?.name ?? 'Select thrust area'}
+            </span>
           </SelectTrigger>
           <SelectContent>
             {thrustAreas.map(ta => (
@@ -217,11 +224,18 @@ export function GoalForm({ userId, thrustAreas, templates, remainingWeightage, o
               {loadingAi ? 'Analyzing...' : 'Analyze this goal'}
             </Button>
             {aiSuggestion.length > 0 && (
-              <ul className="mt-2 space-y-1">
-                {aiSuggestion.map((s, i) => (
-                  <li key={i} className="text-xs text-slate-600">• {s}</li>
-                ))}
-              </ul>
+              <div className="mt-2">
+                <ul className="space-y-1">
+                  {aiSuggestion.map((s, i) => (
+                    <li key={i} className="text-xs text-slate-600">• {s}</li>
+                  ))}
+                </ul>
+                {aiIsFallback && (
+                  <p className="mt-2 text-xs text-slate-400">
+                    These are generic suggestions. To enable AI-powered feedback, add GEMINI_API_KEY to Vercel environment variables.
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}

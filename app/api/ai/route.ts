@@ -15,19 +15,20 @@ export async function POST(request: Request) {
     const { userId, goalTitle, description, uomType, targetValue, thrustArea } = await request.json()
 
     if (!userId || !goalTitle) {
-      return NextResponse.json({ suggestions: FALLBACK })
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true })
     }
 
     // Rate limit: 1 call per 15s per user
     const lastCall = rateLimitMap.get(userId) ?? 0
     if (Date.now() - lastCall < RATE_LIMIT_MS) {
-      return NextResponse.json({ suggestions: FALLBACK, rateLimited: true })
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true, rateLimited: true })
     }
     rateLimitMap.set(userId, Date.now())
 
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ suggestions: FALLBACK })
+      console.error('[AI route] GEMINI_API_KEY is not set')
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true })
     }
 
     const genAI = new GoogleGenerativeAI(apiKey)
@@ -57,11 +58,12 @@ Return exactly 3 bullet points of concise, actionable feedback on this goal's sp
       .slice(0, 3)
 
     if (suggestions.length < 3) {
-      return NextResponse.json({ suggestions: FALLBACK })
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true })
     }
 
     return NextResponse.json({ suggestions })
-  } catch {
-    return NextResponse.json({ suggestions: FALLBACK })
+  } catch (err) {
+    console.error('[AI route] Gemini call failed:', err)
+    return NextResponse.json({ suggestions: FALLBACK, fallback: true })
   }
 }
