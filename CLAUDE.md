@@ -27,13 +27,37 @@ This project uses **Next.js 16.2.6** — read `AGENTS.md` before touching routin
 
 **Demo Mode**: `app/page.tsx` login page has one-click demo buttons. Signs in via `supabase.auth.signInWithPassword` using `[role]@carnival.demo / Demo@2026!` accounts. `DemoSwitcher` component (bottom-right pill) allows role switching without logout.
 
-**Data pattern**: Server components fetch data with `createClient()` from `lib/supabase/server.ts`. Client mutations use `createClient()` from `lib/supabase/client.ts`. Never use nested Supabase joins in server components — they return arrays, not single objects. Pre-process relational data with `Map` lookups instead.
-
-**shadcn v4 Select quirk**: `onValueChange` passes `string | null`, not just `string`. Always guard: `onValueChange={(v) => v && setState(v)}`.
+**Data pattern**: Server components fetch data with `createClient()` from `lib/supabase/server.ts`. Client mutations use `createClient()` from `lib/supabase/client.ts`.
 
 **Score computation**: All UoM scoring is in `lib/scoring.ts::computeScore()`. Six types: `min_numeric`, `max_numeric`, `min_percent`, `max_percent`, `timeline`, `zero`. Cap at 150%.
 
 **Validation**: `lib/validations.ts` — MAX_GOALS=8, MIN_WEIGHT=10%, TOTAL_WEIGHT=100%.
+
+## Known Quirks
+
+### shadcn v4 (Ark UI) Select — label display bug
+`<SelectValue />` renders the raw value (UUID) instead of the item label. Never use it. Render the label directly in the trigger:
+```tsx
+<SelectTrigger>
+  <span className="truncate text-sm">
+    {items.find(i => i.id === selectedId)?.name ?? 'Select...'}
+  </span>
+</SelectTrigger>
+```
+Also: `onValueChange` passes `string | null`, not `string`. Always guard: `onValueChange={(v) => v && setState(v)}`.
+
+### Supabase — ambiguous FK joins on goal_sheets
+`goal_sheets` has two FK columns pointing to `profiles` (`employee_id` and `approved_by`). A nested join like `select('*, employee:profiles(*)')` returns `null` silently due to ambiguity. Fix: fetch flat, then merge using a `Map`:
+```ts
+const employeeMap = new Map(employees.map(e => [e.id, e]))
+const sheets = rawSheets.map(s => ({ ...s, employee: employeeMap.get(s.employee_id) ?? null }))
+```
+
+### Goal sheet statuses
+`draft` → `submitted` → `approved` (locked) or `returned` (back to editable).
+- Employees can withdraw a submitted sheet (→ draft).
+- Only admins can unlock an approved sheet (→ draft), logged to `audit_log`.
+- Employees can request changes on an approved sheet — stored in `audit_log` with `action = 'change_requested'`.
 
 ## Key Files
 
@@ -67,7 +91,16 @@ Required in `.env.local`:
 
 ## AI Coach
 
-`app/api/ai/route.ts` calls Gemini 1.5 Flash. Rate-limited to 1 call per 15s per userId (in-memory Map — resets on cold start, acceptable for demo). Returns 3 bullet improvement suggestions. Falls back to hardcoded suggestions on error.
+`app/api/ai/route.ts` — uses `@google/genai` package (NOT `@google/generative-ai`, which is deprecated).
+
+```ts
+import { GoogleGenAI } from '@google/genai'
+const ai = new GoogleGenAI({ apiKey })
+const response = await ai.models.generateContent({ model: modelName, contents: prompt })
+const text = response.text  // property, not method
+```
+
+Tries models in order: `gemini-2.5-flash-lite` → `gemini-2.5-flash` → `gemini-2.0-flash-lite`. (`gemini-2.0-flash` has quota 0 on the free tier — do not use it.) Rate-limited to 1 call per 15s per userId (in-memory Map, resets on cold start).
 
 ## Cron Job
 
