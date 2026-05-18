@@ -1,5 +1,5 @@
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://carnival-chi.vercel.app'
-const FROM = 'AtomFlow <notifications@atomflow.email>'
+const FROM = 'AtomFlow <onboarding@resend.dev>'
 
 export async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   const key = process.env.RESEND_API_KEY
@@ -9,7 +9,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: FROM, to, subject, html }),
-  }).catch(() => {})
+  }).catch(() => { })
 }
 
 export function emailGoalSubmitted(opts: { employeeName: string; managerEmail: string }): [string, string, string] {
