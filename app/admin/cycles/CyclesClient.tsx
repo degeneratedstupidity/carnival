@@ -60,6 +60,11 @@ export function CyclesClient({ initialCycles }: CyclesClientProps) {
         <Button onClick={() => setOpen(true)} className="bg-orange-500 hover:bg-orange-600">New cycle</Button>
       </div>
 
+      {cycles.length === 0 && (
+        <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center">
+          <p className="text-sm text-slate-500">No goal cycles yet. Click New cycle to create one.</p>
+        </div>
+      )}
       <div className="space-y-3">
         {cycles.map(cycle => (
           <div key={cycle.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
