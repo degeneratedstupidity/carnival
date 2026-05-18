@@ -53,12 +53,19 @@ Goal details:
 
 Return exactly 3 bullet points of concise, actionable feedback on this goal's specificity, measurability, and relevance. Each bullet must be under 20 words. Start each with a dash.`
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: prompt,
-    })
-
-    const text = response.text ?? ''
+    // Try models in order — lite is more likely on free tier
+    const models = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash-lite']
+    let text = ''
+    for (const modelName of models) {
+      try {
+        const response = await ai.models.generateContent({ model: modelName, contents: prompt })
+        text = response.text ?? ''
+        if (text) break
+      } catch (modelErr) {
+        console.warn(`[AI route] Model ${modelName} failed:`, modelErr instanceof Error ? modelErr.message : modelErr)
+      }
+    }
+    if (!text) throw new Error('All models failed')
 
     const suggestions = text
       .split('\n')
