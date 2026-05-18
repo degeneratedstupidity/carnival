@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { userId, goalTitle, description, uomType, targetValue, thrustArea } = await request.json()
+    const { userId, goalTitle, description, uomType, targetValue, targetDate, thrustArea } = await request.json()
 
     if (!userId || !goalTitle) {
       return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'missing_fields' })
@@ -48,7 +48,7 @@ Goal details:
 - Title: ${goalTitle}
 - Description: ${description || 'Not provided'}
 - Unit of Measurement: ${uomType}
-- Target value: ${targetValue ?? 'Not set'}
+- Target value: ${targetValue ?? (targetDate ? targetDate : 'Not set')}
 - Thrust area: ${thrustArea || 'Not specified'}
 
 Return exactly 3 bullet points of concise, actionable feedback on this goal's specificity, measurability, and relevance. Each bullet must be under 20 words. Start each with a dash.`
