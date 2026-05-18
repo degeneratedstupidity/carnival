@@ -81,7 +81,11 @@ export function UsersClient({ profiles, managers }: UsersClientProps) {
                       onValueChange={(v) => v && updateManager(u.id, v)}
                     >
                       <SelectTrigger className="h-7 w-40 text-xs">
-                        <SelectValue placeholder="No manager" />
+                        <span className="truncate">
+                          {u.manager_id
+                            ? (managers.find(m => m.id === u.manager_id)?.name ?? 'Unknown')
+                            : 'No manager'}
+                        </span>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">No manager</SelectItem>

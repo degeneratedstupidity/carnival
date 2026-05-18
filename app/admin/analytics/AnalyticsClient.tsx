@@ -145,10 +145,10 @@ export function AnalyticsClient({ checkins, goals, managers, employees, sheets }
           </div>
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={distData} margin={{ top: 8, right: 24, left: 0, bottom: 48 }}>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={distData} margin={{ top: 8, right: 24, left: 0, bottom: 80 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="area" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" interval={0} />
+                <XAxis dataKey="area" tick={{ fontSize: 11 }} angle={-40} textAnchor="end" interval={0} dy={5} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend />

@@ -15,13 +15,19 @@ export default async function AdminGoalsPage() {
   const { data: employees } = await supabase.from('profiles').select('*').eq('role', 'employee').order('name')
   const { data: thrustAreas } = await supabase.from('thrust_areas').select('*').order('name')
 
-  const { data: sheets } = activeCycle
+  const { data: rawSheets } = activeCycle
     ? await supabase
         .from('goal_sheets')
-        .select('*, employee:profiles(*), goals(*, thrust_area:thrust_areas(*))')
+        .select('id, employee_id, cycle_id, status, goals(*, thrust_area:thrust_areas(*))')
         .eq('cycle_id', activeCycle.id)
         .eq('status', 'approved')
     : { data: [] }
+
+  const employeeMap = new Map((employees ?? []).map(e => [e.id, e]))
+  const approvedSheets = (rawSheets ?? []).map(s => ({
+    ...s,
+    employee: employeeMap.get(s.employee_id) ?? null,
+  }))
 
   return (
     <AppShell role="admin" name={profile.name} department={profile.department}>
@@ -29,7 +35,7 @@ export default async function AdminGoalsPage() {
         adminId={user.id}
         employees={employees ?? []}
         thrustAreas={thrustAreas ?? []}
-        approvedSheets={sheets ?? []}
+        approvedSheets={approvedSheets}
       />
     </AppShell>
   )

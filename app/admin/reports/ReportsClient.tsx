@@ -99,7 +99,11 @@ export function ReportsClient({ cycles, employees, goals }: Props) {
           <label className="text-sm font-medium text-slate-700">Select cycle</label>
           <Select value={cycleId} onValueChange={handleCycleChange}>
             <SelectTrigger className="mt-1 w-64">
-              <SelectValue placeholder="Choose a cycle" />
+              <span className="truncate text-sm">
+                {cycles.find(c => c.id === cycleId)
+                  ? `${cycles.find(c => c.id === cycleId)!.name}${cycles.find(c => c.id === cycleId)!.is_active ? ' (active)' : ''}`
+                  : 'Choose a cycle'}
+              </span>
             </SelectTrigger>
             <SelectContent>
               {cycles.map(c => (

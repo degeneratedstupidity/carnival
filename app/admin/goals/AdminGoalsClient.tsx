@@ -16,7 +16,7 @@ interface AdminGoalsClientProps {
   thrustAreas: ThrustArea[]
   approvedSheets: Array<{
     id: string
-    employee: Profile
+    employee: Profile | null
     goals: Goal[]
   }>
 }
