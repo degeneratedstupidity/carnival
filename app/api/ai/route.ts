@@ -10,12 +10,21 @@ const FALLBACK = [
   'Ensure the goal directly ties to a team or department priority for this cycle.',
 ]
 
+// Debug GET — visit /api/ai in browser to check key status
+export async function GET() {
+  const apiKey = process.env.GEMINI_API_KEY
+  return NextResponse.json({
+    keySet: !!apiKey,
+    keyPrefix: apiKey ? apiKey.slice(0, 8) + '...' : null,
+  })
+}
+
 export async function POST(request: Request) {
   try {
     const { userId, goalTitle, description, uomType, targetValue, thrustArea } = await request.json()
 
     if (!userId || !goalTitle) {
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true })
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'missing_fields' })
     }
 
     // Rate limit: 1 call per 15s per user
@@ -28,7 +37,7 @@ export async function POST(request: Request) {
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
       console.error('[AI route] GEMINI_API_KEY is not set')
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true })
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'no_key' })
     }
 
     const ai = new GoogleGenAI({ apiKey })
@@ -59,12 +68,13 @@ Return exactly 3 bullet points of concise, actionable feedback on this goal's sp
 
     if (suggestions.length < 3) {
       console.error('[AI route] Unexpected response format:', text)
-      return NextResponse.json({ suggestions: FALLBACK, fallback: true })
+      return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'bad_format', raw: text })
     }
 
     return NextResponse.json({ suggestions })
   } catch (err) {
-    console.error('[AI route] Gemini call failed:', err)
-    return NextResponse.json({ suggestions: FALLBACK, fallback: true })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[AI route] Gemini call failed:', msg)
+    return NextResponse.json({ suggestions: FALLBACK, fallback: true, reason: 'exception', error: msg })
   }
 }
