@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" font-family="'Segoe UI', system-ui, sans-serif">
+  <!-- Background -->
+  <rect width="900" height="620" fill="#f8fafc" rx="12"/>
+
+  <!-- Title -->
+  <text x="450" y="42" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">AtomFlow — System Architecture</text>
+  <text x="450" y="62" text-anchor="middle" font-size="12" fill="#64748b">Goal Setting &amp; Tracking Portal · AtomQuest Hackathon 1.0</text>
+
+  <!-- ── Layer 1: Browser ── -->
+  <rect x="50" y="88" width="800" height="120" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="74" y="110" font-size="11" font-weight="600" fill="#1d4ed8">CLIENT LAYER</text>
+
+  <!-- Browser box -->
+  <rect x="80" y="118" width="740" height="76" rx="8" fill="white" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="100" y="142" font-size="13" font-weight="600" fill="#1e40af">Browser</text>
+  <text x="100" y="160" font-size="11" fill="#475569">Next.js 16 App Router (React Server + Client Components)</text>
+  <text x="100" y="176" font-size="11" fill="#475569">Three roles: Employee · Manager · Admin   |   shadcn/ui components   |   Supabase JS client (realtime)</text>
+
+  <!-- ── Layer 2: Vercel ── -->
+  <rect x="50" y="226" width="800" height="140" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="74" y="248" font-size="11" font-weight="600" fill="#15803d">HOSTING LAYER  ·  Vercel (free tier)</text>
+
+  <!-- Edge Network -->
+  <rect x="80" y="256" width="220" height="96" rx="8" fill="white" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="100" y="278" font-size="13" font-weight="600" fill="#166534">Edge Network</text>
+  <text x="100" y="296" font-size="11" fill="#475569">Route protection</text>
+  <text x="100" y="312" font-size="11" fill="#475569">proxy.ts middleware</text>
+  <text x="100" y="328" font-size="11" fill="#475569">Static asset CDN</text>
+
+  <!-- Serverless Functions -->
+  <rect x="320" y="256" width="240" height="96" rx="8" fill="white" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="340" y="278" font-size="13" font-weight="600" fill="#166534">Serverless Functions</text>
+  <text x="340" y="296" font-size="11" fill="#475569">Next.js API Routes</text>
+  <text x="340" y="312" font-size="11" fill="#475569">/api/ai  /api/shared-goals</text>
+  <text x="340" y="328" font-size="11" fill="#475569">/api/sheets  /api/cron</text>
+
+  <!-- Cron -->
+  <rect x="580" y="256" width="240" height="96" rx="8" fill="white" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="600" y="278" font-size="13" font-weight="600" fill="#166534">Cron Jobs</text>
+  <text x="600" y="296" font-size="11" fill="#475569">vercel.json schedule</text>
+  <text x="600" y="312" font-size="11" fill="#475569">Phase transitions</text>
+  <text x="600" y="328" font-size="11" fill="#475569">Auto cycle management</text>
+
+  <!-- ── Layer 3: Services ── -->
+  <rect x="50" y="384" width="800" height="140" rx="10" fill="#fefce8" stroke="#fde68a" stroke-width="1.5"/>
+  <text x="74" y="406" font-size="11" font-weight="600" fill="#92400e">BACKEND SERVICES  ·  All free tiers  ·  Monthly cost: ₹0</text>
+
+  <!-- Supabase -->
+  <rect x="80" y="414" width="240" height="96" rx="8" fill="white" stroke="#fde68a" stroke-width="1"/>
+  <text x="100" y="436" font-size="13" font-weight="600" fill="#78350f">Supabase (free)</text>
+  <text x="100" y="454" font-size="11" fill="#475569">PostgreSQL database</text>
+  <text x="100" y="470" font-size="11" fill="#475569">Row-Level Security (RLS)</text>
+  <text x="100" y="486" font-size="11" fill="#475569">Auth · Realtime · Storage</text>
+
+  <!-- Gemini -->
+  <rect x="340" y="414" width="240" height="96" rx="8" fill="white" stroke="#fde68a" stroke-width="1"/>
+  <text x="360" y="436" font-size="13" font-weight="600" fill="#78350f">Google AI Studio (free)</text>
+  <text x="360" y="454" font-size="11" fill="#475569">Gemini 2.5 Flash Lite</text>
+  <text x="360" y="470" font-size="11" fill="#475569">Goal improvement suggestions</text>
+  <text x="360" y="486" font-size="11" fill="#475569">@google/genai SDK</text>
+
+  <!-- Resend -->
+  <rect x="600" y="414" width="220" height="96" rx="8" fill="white" stroke="#fde68a" stroke-width="1"/>
+  <text x="620" y="436" font-size="13" font-weight="600" fill="#78350f">Resend (free)</text>
+  <text x="620" y="454" font-size="11" fill="#475569">Transactional email</text>
+  <text x="620" y="470" font-size="11" fill="#475569">Submit / Approve / Return</text>
+  <text x="620" y="486" font-size="11" fill="#475569">100 emails / day</text>
+
+  <!-- ── Arrows: Browser → Vercel ── -->
+  <line x1="450" y1="208" x2="450" y2="226" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="220" font-size="10" fill="#94a3b8">HTTPS</text>
+
+  <!-- ── Arrows: Vercel → Services ── -->
+  <line x1="200" y1="352" x2="200" y2="384" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="210" y="372" font-size="10" fill="#94a3b8">SQL / WS</text>
+
+  <line x1="450" y1="366" x2="450" y2="384" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="378" font-size="10" fill="#94a3b8">REST</text>
+
+  <line x1="700" y1="352" x2="700" y2="384" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="710" y="372" font-size="10" fill="#94a3b8">SMTP</text>
+
+  <!-- ── Data flow legend ── -->
+  <rect x="50" y="542" width="800" height="62" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="74" y="562" font-size="11" font-weight="600" fill="#334155">Key Data Flows</text>
+  <text x="74" y="580" font-size="10" fill="#64748b">Employee sets goals → Manager approves → Goals locked → Quarterly check-ins → Score computed → Analytics &amp; Excel export</text>
+  <text x="74" y="596" font-size="10" fill="#64748b">Admin pushes shared goals to team → Check-in actuals fan-out to linked goals · Audit trail logged on all state changes</text>
+
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+</svg>

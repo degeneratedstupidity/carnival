@@ -88,6 +88,8 @@ Required in `.env.local`:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `GEMINI_API_KEY` (Google AI Studio free tier — no billing needed)
 - `CRON_SECRET` (any random string)
+- `RESEND_API_KEY` (optional — email notifications. Free tier: 100 emails/day. Get from resend.com)
+- `NEXT_PUBLIC_APP_URL` (optional — defaults to `https://carnival-chi.vercel.app`)
 
 ## AI Coach
 

@@ -149,6 +149,7 @@ export function GoalsClient({
     toast.success('Goals submitted for approval')
     setSubmitting(false)
     router.refresh()
+    fetch('/api/emails', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'submitted', sheetId }) }).catch(() => {})
   }
 
   async function submitChangeRequest() {

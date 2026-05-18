@@ -85,6 +85,7 @@ export function ApprovalClient({ manager, sheet, employee, initialGoals }: Appro
     toast.success('Goals approved')
     router.push('/manager/approvals')
     router.refresh()
+    fetch('/api/emails', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'approved', sheetId: sheet.id }) }).catch(() => {})
   }
 
   async function returnSheet() {
@@ -109,6 +110,7 @@ export function ApprovalClient({ manager, sheet, employee, initialGoals }: Appro
     setReturnDialogOpen(false)
     router.push('/manager/approvals')
     router.refresh()
+    fetch('/api/emails', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'returned', sheetId: sheet.id, reason: returnReason }) }).catch(() => {})
   }
 
   return (
