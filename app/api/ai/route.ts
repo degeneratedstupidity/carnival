@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 const rateLimitMap = new Map<string, number>()
 const RATE_LIMIT_MS = 15_000
@@ -31,11 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ suggestions: FALLBACK, fallback: true })
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
-      generationConfig: { maxOutputTokens: 300, temperature: 0.4 },
-    })
+    const ai = new GoogleGenAI({ apiKey })
 
     const prompt = `You are a goal-setting coach for a corporate HR portal.
 
@@ -48,16 +44,21 @@ Goal details:
 
 Return exactly 3 bullet points of concise, actionable feedback on this goal's specificity, measurability, and relevance. Each bullet must be under 20 words. Start each with a dash.`
 
-    const result = await model.generateContent(prompt)
-    const text = result.response.text()
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+    })
+
+    const text = response.text ?? ''
 
     const suggestions = text
       .split('\n')
-      .map(l => l.replace(/^[-•*]\s*/, '').trim())
-      .filter(l => l.length > 0)
+      .map((l: string) => l.replace(/^[-•*]\s*/, '').trim())
+      .filter((l: string) => l.length > 0)
       .slice(0, 3)
 
     if (suggestions.length < 3) {
+      console.error('[AI route] Unexpected response format:', text)
       return NextResponse.json({ suggestions: FALLBACK, fallback: true })
     }
 
