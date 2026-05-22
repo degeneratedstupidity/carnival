@@ -321,15 +321,18 @@ export function GoalsClient({
         )}
       </div>
 
-      {/* ── Floating Weightage Gauge ── */}
+      {/* ── Weightage Gauge Bar ── */}
       {!isLocked && goals.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 px-4">
+        <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-xl -translate-x-1/2">
           <div
-            className="rounded-3xl border p-5 backdrop-blur-xl"
             style={{
-              background: 'color-mix(in oklch, var(--card) 90%, transparent)',
-              borderColor: 'var(--border)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+              background: 'var(--card)',
+              borderTop: '2px solid #f59e0b',
+              borderLeft: '1px solid var(--border)',
+              borderRight: '1px solid var(--border)',
+              borderRadius: '12px 12px 0 0',
+              padding: '16px 20px 20px',
+              boxShadow: '0 -8px 28px rgba(0,0,0,0.22)',
             }}
           >
             <WeightageFuelGauge used={usedWeight} />
